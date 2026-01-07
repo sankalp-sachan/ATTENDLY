@@ -87,7 +87,7 @@ const Auth = () => {
                                             required={!isLogin}
                                             value={institute}
                                             onChange={(e) => setInstitute(e.target.value)}
-                                            placeholder="e.g. Harvard University"
+                                            placeholder="e.g. Shishu vishwavidyalaya"
                                             className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
                                         />
                                     </div>
