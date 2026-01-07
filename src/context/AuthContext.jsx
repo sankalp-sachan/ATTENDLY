@@ -11,83 +11,111 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('attendly_current_user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
-
-    const [users, setUsers] = useState(() => {
-        const savedUsers = localStorage.getItem('attendly_users');
-        const initialUsers = savedUsers ? JSON.parse(savedUsers) : [];
-
-        // Ensure admin@attendly.com exists
-        const adminEmail = 'admin@attendly.com';
-        if (!initialUsers.find(u => u.email === adminEmail)) {
-            initialUsers.push({
-                id: 'admin-1',
-                email: adminEmail,
-                password: 'adminpassword',
-                name: 'System Administrator',
-                role: 'admin'
-            });
-        }
-        return initialUsers;
-    });
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('attendly_token'));
+    const [loading, setLoading] = useState(true);
+    // Users list for admin (would be fetched from API in full implementation)
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        localStorage.setItem('attendly_users', JSON.stringify(users));
-    }, [users]);
-
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem('attendly_current_user', JSON.stringify(user));
-        } else {
-            localStorage.removeItem('attendly_current_user');
-        }
-    }, [user]);
-
-    const register = (email, password, name, institute) => {
-        const exists = users.find(u => u.email === email);
-        if (exists) {
-            throw new Error('User with this email already exists');
-        }
-        const newUser = {
-            id: Date.now().toString(),
-            email,
-            password,
-            name,
-            institute: institute || '',
-            role: email === 'admin@attendly.com' ? 'admin' : 'user'
+        const initAuth = async () => {
+            if (token) {
+                // Ideally verify token with backend /me endpoint here
+                // For now, we decode or just trust it until 401
+                // Let's implement a simple user restore from localStorage if available 
+                try {
+                    const savedUser = localStorage.getItem('attendly_current_user');
+                    if (savedUser) setUser(JSON.parse(savedUser));
+                } catch (e) {
+                    console.error('Failed to parse user', e);
+                    logout();
+                }
+            }
+            setLoading(false);
         };
-        setUsers(prev => [...prev, newUser]);
-        setUser(newUser);
-        return newUser;
+        initAuth();
+    }, [token]);
+
+    const register = async (email, password, name, institute) => {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, name, institute })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Registration failed');
+
+        return { success: true, code: data.code };
     };
 
-    const login = (email, password) => {
-        const found = users.find(u => u.email === email && u.password === password);
-        if (!found) {
-            throw new Error('Invalid email or password');
+    const login = async (email, password) => {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            const error = new Error(data.message || 'Login failed');
+            if (data.code === 'UNVERIFIED') error.code = 'UNVERIFIED';
+            throw error;
         }
-        setUser(found);
-        return found;
+
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('attendly_token', data.token);
+        localStorage.setItem('attendly_current_user', JSON.stringify(data.user));
+        return data.user;
     };
 
-    const deleteUser = (userId) => {
-        if (userId === 'admin-1') throw new Error("Cannot delete the system administrator");
-        setUsers(prev => prev.filter(u => u.id !== userId));
+    const verifyEmail = async (email, code) => {
+        const response = await fetch('/api/auth/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp: code })
+        });
 
-        // Cleanup their data
-        localStorage.removeItem(`attendance_classes_${userId}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Verification failed');
+
+        setToken(data.token);
+        setUser(data.user);
+        localStorage.setItem('attendly_token', data.token);
+        localStorage.setItem('attendly_current_user', JSON.stringify(data.user));
+        return true;
+    };
+
+    const resendVerificationCode = async (email) => {
+        const response = await fetch('/api/auth/resend', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Resend failed');
+
+        return { success: true, code: data.code };
+    };
+
+    const deleteUser = async (userId) => {
+        // Implement API call for delete if backend supports it
+        // For now, stub or local filter
+        setUsers(prev => prev.filter(u => u.id !== userId));
     };
 
     const logout = () => {
         setUser(null);
+        setToken(null);
+        localStorage.removeItem('attendly_token');
+        localStorage.removeItem('attendly_current_user');
     };
 
     return (
-        <AuthContext.Provider value={{ user, users, login, register, logout, deleteUser }}>
-            {children}
+        <AuthContext.Provider value={{ user, users, login, register, verifyEmail, resendVerificationCode, logout, deleteUser, loading }}>
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
