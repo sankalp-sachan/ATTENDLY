@@ -171,7 +171,7 @@ const Auth = () => {
                 {/* Info Text */}
                 <div className="mt-8 text-center">
                     <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-                        Your data is stored locally on this device. We don't send your password or attendance anywhere else.
+                        Your data is securely stored in your account.
                     </p>
                 </div>
             </motion.div>

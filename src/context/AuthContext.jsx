@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -16,27 +17,10 @@ export const AuthProvider = ({ children }) => {
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
-    const [users, setUsers] = useState(() => {
-        const savedUsers = localStorage.getItem('attendly_users');
-        const initialUsers = savedUsers ? JSON.parse(savedUsers) : [];
-
-        // Ensure admin@attendly.com exists
-        const adminEmail = 'admin@attendly.com';
-        if (!initialUsers.find(u => u.email === adminEmail)) {
-            initialUsers.push({
-                id: 'admin-1',
-                email: adminEmail,
-                password: 'adminpassword',
-                name: 'System Administrator',
-                role: 'admin'
-            });
-        }
-        return initialUsers;
-    });
-
+    // Clean up local mock users since we are now connected to backend
     useEffect(() => {
-        localStorage.setItem('attendly_users', JSON.stringify(users));
-    }, [users]);
+        localStorage.removeItem('attendly_users');
+    }, []);
 
     useEffect(() => {
         if (user) {
@@ -46,47 +30,62 @@ export const AuthProvider = ({ children }) => {
         }
     }, [user]);
 
-    const register = (email, password, name, institute) => {
-        const exists = users.find(u => u.email === email);
-        if (exists) {
-            throw new Error('User with this email already exists');
+    const register = async (email, password, name, institute) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const { data } = await axios.post(
+                'https://attendly-backend-pe5k.onrender.com/users',
+                { email, password, name, institute },
+                config
+            );
+
+            setUser(data);
+            return data;
+        } catch (error) {
+            console.error("Registration validation error:", error.response?.data?.message || error.message);
+            throw new Error(error.response?.data?.message || 'Registration failed');
         }
-        const newUser = {
-            id: Date.now().toString(),
-            email,
-            password,
-            name,
-            institute: institute || '',
-            role: email === 'admin@attendly.com' ? 'admin' : 'user'
-        };
-        setUsers(prev => [...prev, newUser]);
-        setUser(newUser);
-        return newUser;
     };
 
-    const login = (email, password) => {
-        const found = users.find(u => u.email === email && u.password === password);
-        if (!found) {
-            throw new Error('Invalid email or password');
+    const login = async (email, password) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const { data } = await axios.post(
+                'https://attendly-backend-pe5k.onrender.com/users/login',
+                { email, password },
+                config
+            );
+
+            setUser(data);
+            return data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Invalid email or password');
         }
-        setUser(found);
-        return found;
     };
 
-    const deleteUser = (userId) => {
-        if (userId === 'admin-1') throw new Error("Cannot delete the system administrator");
-        setUsers(prev => prev.filter(u => u.id !== userId));
-
-        // Cleanup their data
-        localStorage.removeItem(`attendance_classes_${userId}`);
+    const deleteUser = async (userId) => {
+        // Placeholder: Backend does not currently support user deletion via API
+        console.warn("deleteUser not implemented on backend endpoints yet.");
+        // If you have a backend route, you would call: await axios.delete(`/api/users/${userId}`);
     };
 
     const logout = () => {
         setUser(null);
+        localStorage.removeItem('attendly_current_user');
     };
 
     return (
-        <AuthContext.Provider value={{ user, users, login, register, logout, deleteUser }}>
+        <AuthContext.Provider value={{ user, login, register, logout, deleteUser }}>
             {children}
         </AuthContext.Provider>
     );
