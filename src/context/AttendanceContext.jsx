@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { calculateAttendanceStats } from '../utils/calculations';
+import api from '../utils/api';
 
 const AttendanceContext = createContext();
 
@@ -24,20 +25,27 @@ export const AttendanceProvider = ({ children }) => {
         localStorage.setItem('notifications_enabled', 'true');
     }, [user]);
 
+    // Fetch Classes from Backend (Syncing)
     useEffect(() => {
-        if (user) {
-            const saved = localStorage.getItem(`attendance_classes_${user.id}`);
-            setClasses(saved ? JSON.parse(saved) : []);
-        } else {
-            setClasses([]);
-        }
+        const fetchClasses = async () => {
+            if (user) {
+                try {
+                    const { data } = await api.get('/attendance');
+                    // Normalize _id to id for frontend compatibility
+                    const formattedClasses = data.map(c => ({
+                        ...c,
+                        id: c._id || c.id
+                    }));
+                    setClasses(formattedClasses);
+                } catch (error) {
+                    console.error("Failed to sync attendance data:", error);
+                }
+            } else {
+                setClasses([]);
+            }
+        };
+        fetchClasses();
     }, [user]);
-
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem(`attendance_classes_${user.id}`, JSON.stringify(classes));
-        }
-    }, [classes, user]);
 
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('dark_mode');
@@ -126,10 +134,6 @@ export const AttendanceProvider = ({ children }) => {
     }, [notificationsEnabled, classes]);
 
     useEffect(() => {
-        localStorage.setItem('attendance_classes', JSON.stringify(classes));
-    }, [classes]);
-
-    useEffect(() => {
         localStorage.setItem('dark_mode', JSON.stringify(darkMode));
         if (darkMode) {
             document.documentElement.classList.add('dark');
@@ -138,21 +142,28 @@ export const AttendanceProvider = ({ children }) => {
         }
     }, [darkMode]);
 
-    const addClass = (newClass) => {
-        const classWithId = {
-            ...newClass,
-            id: Date.now().toString(),
-            attendance: {},
-            targetPercentage: newClass.targetPercentage || 75
-        };
-        setClasses(prev => [...prev, classWithId]);
+    const addClass = async (newClass) => {
+        try {
+            const { data } = await api.post('/attendance', newClass);
+            const formatted = { ...data, id: data._id || data.id };
+            setClasses(prev => [...prev, formatted]);
+        } catch (error) {
+            console.error("Error adding class:", error);
+            alert("Failed to create class. Please try again.");
+        }
     };
 
-    const removeClass = (id) => {
-        setClasses(prev => prev.filter(c => c.id !== id));
+    const removeClass = async (id) => {
+        try {
+            await api.delete(`/attendance/${id}`);
+            setClasses(prev => prev.filter(c => c.id !== id));
+        } catch (error) {
+            console.error("Error removing class:", error);
+        }
     };
 
-    const updateAttendance = (classId, date, status) => {
+    const updateAttendance = async (classId, date, status) => {
+        // Optimistic Update
         setClasses(prev => prev.map(c => {
             if (c.id === classId) {
                 const newAttendance = { ...c.attendance };
@@ -165,12 +176,28 @@ export const AttendanceProvider = ({ children }) => {
             }
             return c;
         }));
+
+        // Backend Update
+        try {
+            await api.put(`/attendance/${classId}/mark`, { date, status });
+        } catch (error) {
+            console.error("Error marking attendance:", error);
+            // Revert state if necessary, but omitting for simplicity/UX speed
+        }
     };
 
-    const updateClass = (classId, updates) => {
+    const updateClass = async (classId, updates) => {
+        // Optimistic Update
         setClasses(prev => prev.map(c =>
             c.id === classId ? { ...c, ...updates } : c
         ));
+
+        // Backend Update
+        try {
+            await api.put(`/attendance/${classId}`, updates);
+        } catch (error) {
+            console.error("Error updating class:", error);
+        }
     };
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
