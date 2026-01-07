@@ -2,7 +2,8 @@ import { startOfDay, isBefore, isAfter, parseISO, format, eachDayOfInterval, isS
 
 export const calculateAttendanceStats = (classData) => {
     const { attendance, startDate } = classData;
-    const start = startOfDay(parseISO(startDate));
+    const dateToParse = startDate || new Date().toISOString().split('T')[0];
+    const start = startOfDay(parseISO(dateToParse));
     const today = startOfDay(new Date());
 
     let totalWorkingDays = 0;
