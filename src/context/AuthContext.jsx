@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
             };
 
             const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/users',
+                'https://attendly-backend-pe5k.onrender.com/api/users',
                 { email, password, name, institute },
                 config
             );
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
             };
 
             const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/users/login',
+                'https://attendly-backend-pe5k.onrender.com/api/users/login',
                 { email, password },
                 config
             );
