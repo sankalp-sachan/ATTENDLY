@@ -108,7 +108,7 @@ const Dashboard = () => {
             {/* Header */}
             <header className="sticky top-0 z-40 w-full glass border-b dark:border-slate-800 px-4 py-3">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/about-developer')}>
                         <div className="bg-primary-600 p-2 rounded-xl text-white">
                             <GraduationCap className="w-6 h-6" />
                         </div>

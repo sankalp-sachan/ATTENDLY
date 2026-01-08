@@ -28,6 +28,8 @@ const PublicRoute = ({ children }) => {
 import SplashScreen from './components/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
 
+import AboutDeveloper from './pages/AboutDeveloper';
+
 function App() {
   const [loading, setLoading] = React.useState(true);
 
@@ -54,6 +56,10 @@ function App() {
                       <Auth />
                     </PublicRoute>
                   }
+                />
+                <Route
+                  path="/about-developer"
+                  element={<AboutDeveloper />}
                 />
                 <Route
                   path="/"
