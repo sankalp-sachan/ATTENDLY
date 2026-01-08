@@ -25,39 +25,57 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+import SplashScreen from './components/SplashScreen';
+import { AnimatePresence } from 'framer-motion';
+
 function App() {
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2500); // Show splash screen for 2.5 seconds
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <AuthProvider>
       <AttendanceProvider>
-        <Router>
-          <Routes>
-            <Route
-              path="/auth"
-              element={
-                <PublicRoute>
-                  <Auth />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Router>
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <SplashScreen key="splash" />
+          ) : (
+            <Router>
+              <Routes>
+                <Route
+                  path="/auth"
+                  element={
+                    <PublicRoute>
+                      <Auth />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </Router>
+          )}
+        </AnimatePresence>
       </AttendanceProvider>
     </AuthProvider>
   );

@@ -169,9 +169,12 @@ const Auth = () => {
                 </div>
 
                 {/* Info Text */}
-                <div className="mt-8 text-center">
+                <div className="mt-8 text-center space-y-4">
                     <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
                         Your data is securely stored in your account.
+                    </p>
+                    <p className="text-xs font-medium bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent opacity-80">
+                        Developed by Sankalp Sachan
                     </p>
                 </div>
             </motion.div>
