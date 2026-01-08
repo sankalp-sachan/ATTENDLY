@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Github, Linkedin, Instagram, Twitter, ExternalLink, MessageCircle } from 'lucide-react';
+import { SiGithub, SiLinkedin, SiInstagram, SiWhatsapp } from 'react-icons/si';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SocialLink = ({ href, icon: Icon, label, colorClass }) => (
@@ -110,7 +111,7 @@ const AboutDeveloper = () => {
                     >
                         <SocialLink
                             href="https://wa.me/9532374168"
-                            icon={MessageCircle}
+                            icon={SiWhatsapp}
                             label="WhatsApp"
                             colorClass="text-green-500 hover:text-green-600 bg-green-500/10 hover:bg-green-500/20"
                         />
@@ -122,19 +123,19 @@ const AboutDeveloper = () => {
                         />
                         <SocialLink
                             href="https://github.com/sankalp-sachan"
-                            icon={Github}
+                            icon={SiGithub}
                             label="GitHub"
                             colorClass="text-slate-800 dark:text-white hover:text-slate-600 bg-slate-500/10 hover:bg-slate-500/20"
                         />
                         <SocialLink
                             href="https://www.linkedin.com/in/sachansankalp2007"
-                            icon={Linkedin}
+                            icon={SiLinkedin}
                             label="LinkedIn"
                             colorClass="text-blue-600 hover:text-blue-700 bg-blue-600/10 hover:bg-blue-600/20"
                         />
                         <SocialLink
                             href="https://instagram.com/_sankalpsachan35_"
-                            icon={Instagram}
+                            icon={SiInstagram}
                             label="Instagram"
                             colorClass="text-pink-600 hover:text-pink-700 bg-pink-600/10 hover:bg-pink-600/20"
                         />
