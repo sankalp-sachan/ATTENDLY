@@ -26,6 +26,7 @@ const PublicRoute = ({ children }) => {
 };
 
 import SplashScreen from './components/SplashScreen';
+import InstallOverlay from './components/InstallOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import AboutDeveloper from './pages/AboutDeveloper';
@@ -43,6 +44,7 @@ function App() {
   return (
     <AuthProvider>
       <AttendanceProvider>
+        <InstallOverlay />
         <AnimatePresence mode="wait">
           {loading ? (
             <SplashScreen key="splash" />
