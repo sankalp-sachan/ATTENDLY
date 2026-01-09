@@ -214,12 +214,28 @@ export const AttendanceProvider = ({ children }) => {
         return false;
     };
 
-    const sendNotification = (title, message) => {
+    const sendNotification = async (title, message) => {
         if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
-            new Notification(title, {
-                body: message,
-                icon: '/pwa-192x192.png'
-            });
+            try {
+                // Try Service Worker first (Required for Android Chrome)
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    if (registration) {
+                        return registration.showNotification(title, {
+                            body: message,
+                            icon: '/pwa-192x192.png'
+                        });
+                    }
+                }
+
+                // Fallback for Desktop if SW not ready/available
+                new Notification(title, {
+                    body: message,
+                    icon: '/pwa-192x192.png'
+                });
+            } catch (error) {
+                console.error("Failed to send notification:", error);
+            }
         }
     };
 
