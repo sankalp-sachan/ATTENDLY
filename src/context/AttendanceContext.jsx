@@ -73,65 +73,7 @@ export const AttendanceProvider = ({ children }) => {
         checkPermission();
     }, []);
 
-    // Scheduled Daily Notification (8 AM)
-    useEffect(() => {
-        const checkScheduledNotification = () => {
-            if (!notificationsEnabled) return;
-
-            const now = new Date();
-            const hour = now.getHours();
-            const todayStr = now.toISOString().split('T')[0];
-            const lastNotified = localStorage.getItem('last_daily_notification');
-
-            // Send notification if it's 8 AM or later and we haven't notified today
-            if (hour >= 8 && lastNotified !== todayStr) {
-                // Check for low attendance (below 75%)
-                const hasLowAttendance = classes.some(c => {
-                    const stats = calculateAttendanceStats(c);
-                    return stats.percentage < (c.targetPercentage || 75);
-                });
-
-                let title = "Daily Reminder";
-                let message = "";
-
-                if (hasLowAttendance) {
-                    title = "⚠️ ATTENDANCE ALERT";
-                    message = "college chala jaa bhadve";
-                } else {
-                    const messages = [
-                        "Time to join your class! 🎓",
-                        "Don't miss your lectures today! 📚",
-                        "Attendance matters! Mark yours now. ✅",
-                        "Good morning! Ready for learning? ☀️",
-                        "Keep your streak alive! Join class. 🔥",
-                        "Your future self will thank you for attending! 🚀",
-                        "Success occurs when opportunity meets preparation. 🌟",
-                        "The beautiful thing about learning is that no one can take it away from you. 💡",
-                        "Education is the passport to the future. 🌍",
-                        "Develop a passion for learning. If you do, you will never cease to grow. 🌱"
-                    ];
-                    message = messages[Math.floor(Math.random() * messages.length)];
-                }
-
-                sendNotification(title, message);
-                localStorage.setItem('last_daily_notification', todayStr);
-            }
-
-            // Evening Alarm Reminder (9 PM)
-            const lastAlarmReminder = localStorage.getItem('last_alarm_reminder');
-            if (hour >= 21 && lastAlarmReminder !== todayStr) {
-                sendNotification("⏰ Set Your Alarm!", "Don't forget to set an alarm for tomorrow morning! Sleep well. 😴");
-                localStorage.setItem('last_alarm_reminder', todayStr);
-            }
-        };
-
-        // Check immediately on mount/update
-        checkScheduledNotification();
-
-        // Check every minute
-        const interval = setInterval(checkScheduledNotification, 60000);
-        return () => clearInterval(interval);
-    }, [notificationsEnabled, classes]);
+    // Old Daily Notification Logic Removed - using Service Worker Trigger instead
 
     useEffect(() => {
         localStorage.setItem('dark_mode', JSON.stringify(darkMode));
@@ -239,81 +181,137 @@ export const AttendanceProvider = ({ children }) => {
         }
     };
 
-    // Offline Notification Scheduling (Experimental)
+    // Reliable Notification System (Interval + Background Scheduler)
     useEffect(() => {
-        const scheduleOfflineNotification = async () => {
-            if (!notificationsEnabled || !('serviceWorker' in navigator)) return;
+        // Helper: Get or generate today's random time
+        const getDailyRandomTime = () => {
+            const today = new Date().toISOString().split('T')[0];
+            const savedDate = localStorage.getItem('random_time_date');
+            const savedTime = localStorage.getItem('random_time_value');
 
-            try {
-                // Check for experimental TimestampTrigger support (Chrome Android/Desktop with flags)
-                if (!('TimestampTrigger' in window)) return;
+            if (savedDate === today && savedTime) {
+                return JSON.parse(savedTime);
+            }
 
-                const reg = await navigator.serviceWorker.ready;
-                const now = new Date();
-                let targetTime = new Date();
-                targetTime.setHours(8, 0, 0, 0);
+            // Generate new time between 8 AM (8) and 8 PM (20)
+            const startHour = 8;
+            const endHour = 20;
+            const hour = Math.floor(Math.random() * (endHour - startHour + 1)) + startHour;
+            const minute = Math.floor(Math.random() * 60);
 
-                // If already past 8 AM, schedule for tomorrow
-                if (now >= targetTime) {
-                    targetTime.setDate(targetTime.getDate() + 1);
-                }
+            const newTime = { hour, minute };
+            localStorage.setItem('random_time_date', today);
+            localStorage.setItem('random_time_value', JSON.stringify(newTime));
+            return newTime;
+        };
 
-                // Determine message based on current stats
-                const hasLowAttendance = classes.some(c => {
-                    const stats = calculateAttendanceStats(c);
-                    return stats.percentage < (c.targetPercentage || 75);
-                });
+        const checkAndSendNotifications = async () => {
+            if (!notificationsEnabled) return;
 
-                let title = "Daily Reminder";
-                let body = "Don't forget to mark your attendance today!";
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const todayStr = now.toISOString().split('T')[0];
 
-                if (hasLowAttendance) {
-                    title = "⚠️ ATTENDANCE ALERT";
-                    body = "college chala jaa bhadve";
-                } else {
-                    const messages = [
-                        "Time to join your class! 🎓",
+            // 1. Random Motivation Logic
+            const randomTime = getDailyRandomTime();
+            const lastRandom = localStorage.getItem('last_random_notification');
+
+            // Check if current time matches (or has just passed within the last hour to be safe)
+            // We only send ONCE per day.
+            if (lastRandom !== todayStr) {
+                // If we are past the random time
+                if (currentHour > randomTime.hour || (currentHour === randomTime.hour && currentMinute >= randomTime.minute)) {
+
+                    let avgAttendance = 0;
+                    if (classes.length > 0) {
+                        const total = classes.reduce((sum, c) => sum + parseFloat(calculateAttendanceStats(c).percentage), 0);
+                        avgAttendance = (total / classes.length).toFixed(1);
+                    }
+
+                    const quotes = [
+                        "Believe you can and you're halfway there.",
+                        "The only way to do great work is to love what you do.",
+                        "Don't watch the clock; do what it does. Keep going.",
+                        "The future belongs to those who believe in the beauty of their dreams.",
+                        "It always seems impossible until it is done.",
+                        "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+                        "Your education is a dress rehearsal for a life that is yours to lead.",
+                        "The expert in anything was once a beginner.",
                         "Don't miss your lectures today! 📚",
                         "Attendance matters! Mark yours now. ✅",
                         "Good morning! Ready for learning? ☀️",
                         "Keep your streak alive! Join class. 🔥",
                         "Your future self will thank you for attending! 🚀",
                         "Success occurs when opportunity meets preparation. 🌟",
-                        "The beautiful thing about learning is that no one can take it away from you. 💡",
+                        "The beautiful thing about learning is that no one can take it away from you. 💡", 
                         "Education is the passport to the future. 🌍",
                         "Develop a passion for learning. If you do, you will never cease to grow. 🌱"
+
                     ];
-                    body = messages[Math.floor(Math.random() * messages.length)];
+                    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+                    sendNotification(`Average Attendance: ${avgAttendance}%`, quote);
+                    localStorage.setItem('last_random_notification', todayStr);
                 }
+            }
 
-                // Schedule Morning Notification
-                await reg.showNotification(title, {
-                    body: body,
-                    tag: 'daily-reminder', // Keeps only one pending notification
-                    icon: '/pwa-192x192.png',
-                    showTrigger: new window.TimestampTrigger(targetTime.getTime())
-                });
+            // 2. 10:00 AM Reminder
+            const last10am = localStorage.getItem('last_10am_notification');
+            if (currentHour >= 10 && last10am !== todayStr) {
+                sendNotification("Don't forget!", "Don't forget to mark today's attendance 📝");
+                localStorage.setItem('last_10am_notification', todayStr);
+            }
 
-                // Schedule Evening Alarm Reminder (9 PM)
-                let eveningTime = new Date();
-                eveningTime.setHours(21, 0, 0, 0);
-                if (now >= eveningTime) {
-                    eveningTime.setDate(eveningTime.getDate() + 1);
+            // 3. 5:00 PM Reminder
+            const last5pm = localStorage.getItem('last_5pm_notification');
+            if (currentHour >= 17 && last5pm !== todayStr) {
+                sendNotification("Don't forget!", "Don't forget to mark today's attendance 📝");
+                localStorage.setItem('last_5pm_notification', todayStr);
+            }
+
+            // === Background Scheduling (TimestampTrigger) for Closed App ===
+            if ('serviceWorker' in navigator && 'TimestampTrigger' in window) {
+                try {
+                    const reg = await navigator.serviceWorker.ready;
+                    const now = new Date();
+
+                    // Schedule 10 AM Tomorrow (or today if not passed, but interval handles today)
+                    let time10am = new Date();
+                    time10am.setHours(10, 0, 0, 0);
+                    if (now >= time10am) time10am.setDate(time10am.getDate() + 1);
+
+                    await reg.showNotification("Don't forget!", {
+                        body: "Don't forget to mark today's attendance 📝",
+                        tag: 'reminder-10am',
+                        icon: '/pwa-192x192.png',
+                        showTrigger: new window.TimestampTrigger(time10am.getTime())
+                    });
+
+                    // Schedule 5 PM Tomorrow
+                    let time5pm = new Date();
+                    time5pm.setHours(17, 0, 0, 0);
+                    if (now >= time5pm) time5pm.setDate(time5pm.getDate() + 1);
+
+                    await reg.showNotification("Don't forget!", {
+                        body: "Don't forget to mark today's attendance 📝",
+                        tag: 'reminder-5pm',
+                        icon: '/pwa-192x192.png',
+                        showTrigger: new window.TimestampTrigger(time5pm.getTime())
+                    });
+
+                } catch (err) {
+                    // Ignore
                 }
-
-                await reg.showNotification("⏰ Set Your Alarm!", {
-                    body: "Don't forget to set an alarm for tomorrow morning! Sleep well. 😴",
-                    tag: 'evening-alarm-reminder',
-                    icon: '/pwa-192x192.png',
-                    showTrigger: new window.TimestampTrigger(eveningTime.getTime())
-                });
-
-            } catch (error) {
-                // Ignore unsupported API errors
             }
         };
 
-        scheduleOfflineNotification();
+        // Run immediately
+        checkAndSendNotifications();
+
+        // Run every minute
+        const interval = setInterval(checkAndSendNotifications, 60000);
+        return () => clearInterval(interval);
     }, [classes, notificationsEnabled]);
 
     return (
