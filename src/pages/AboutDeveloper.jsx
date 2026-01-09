@@ -110,7 +110,7 @@ const AboutDeveloper = () => {
                         className="flex flex-wrap justify-center gap-4"
                     >
                         <SocialLink
-                            href="https://wa.me/9005432625"
+                            href="https://wa.me/+919005432625"
                             icon={SiWhatsapp}
                             label="WhatsApp"
                             colorClass="text-green-500 hover:text-green-600 bg-green-500/10 hover:bg-green-500/20"
