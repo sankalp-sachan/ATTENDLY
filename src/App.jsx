@@ -26,7 +26,7 @@ const PublicRoute = ({ children }) => {
 };
 
 import SplashScreen from './components/SplashScreen';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import AboutDeveloper from './pages/AboutDeveloper';
 
@@ -47,39 +47,47 @@ function App() {
           {loading ? (
             <SplashScreen key="splash" />
           ) : (
-            <Router>
-              <Routes>
-                <Route
-                  path="/auth"
-                  element={
-                    <PublicRoute>
-                      <Auth />
-                    </PublicRoute>
-                  }
-                />
-                <Route
-                  path="/about-developer"
-                  element={<AboutDeveloper />}
-                />
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </Router>
+            <motion.div
+              key="app"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="min-h-screen"
+            >
+              <Router>
+                <Routes>
+                  <Route
+                    path="/auth"
+                    element={
+                      <PublicRoute>
+                        <Auth />
+                      </PublicRoute>
+                    }
+                  />
+                  <Route
+                    path="/about-developer"
+                    element={<AboutDeveloper />}
+                  />
+                  <Route
+                    path="/"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </Router>
+            </motion.div>
           )}
         </AnimatePresence>
       </AttendanceProvider>
