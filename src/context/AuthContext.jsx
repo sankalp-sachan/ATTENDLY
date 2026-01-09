@@ -44,11 +44,54 @@ export const AuthProvider = ({ children }) => {
                 config
             );
 
-            setUser(data);
-            return data;
+            // If token is present, auto-login (legacy or if verification disabled)
+            if (data.token) {
+                setUser(data);
+                return { success: true, data };
+            } else {
+                // Verification required
+                return { success: true, requiresVerification: true, email: data.email, message: data.message };
+            }
         } catch (error) {
             console.error("Registration validation error:", error.response?.data?.message || error.message);
             throw new Error(error.response?.data?.message || 'Registration failed');
+        }
+    };
+
+    const verifyOtp = async (email, otp) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            const { data } = await axios.post(
+                'https://attendly-backend-pe5k.onrender.com/api/users/verify',
+                { email, otp },
+                config
+            );
+            setUser(data);
+            return data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Verification failed');
+        }
+    };
+
+    const resendOtp = async (email) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            const { data } = await axios.post(
+                'https://attendly-backend-pe5k.onrender.com/api/users/resend-otp',
+                { email },
+                config
+            );
+            return data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'Failed to resend OTP');
         }
     };
 
@@ -69,6 +112,13 @@ export const AuthProvider = ({ children }) => {
             setUser(data);
             return data;
         } catch (error) {
+            // Check if error is due to unverified account
+            if (error.response?.status === 401 && error.response?.data?.isUnverified) {
+                const err = new Error(error.response.data.message);
+                err.isUnverified = true;
+                err.email = error.response.data.email;
+                throw err;
+            }
             throw new Error(error.response?.data?.message || 'Invalid email or password');
         }
     };
@@ -85,7 +135,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, deleteUser }}>
+        <AuthContext.Provider value={{ user, login, register, logout, deleteUser, verifyOtp, resendOtp }}>
             {children}
         </AuthContext.Provider>
     );
