@@ -53,8 +53,12 @@ export const AuthProvider = ({ children }) => {
                 return { success: true, requiresVerification: true, email: data.email, message: data.message };
             }
         } catch (error) {
-            console.error("Registration validation error:", error.response?.data?.message || error.message);
-            throw new Error(error.response?.data?.message || 'Registration failed');
+            console.error("Registration error:", error);
+            const serverError = error.response?.data?.error;
+            const message = error.response?.data?.message || 'Registration failed';
+
+            // Append explicit server error details if available
+            throw new Error(serverError ? `${message}: ${serverError}` : message);
         }
     };
 
