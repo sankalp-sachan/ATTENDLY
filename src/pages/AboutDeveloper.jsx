@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SiGithub, SiLinkedin, SiInstagram, SiWhatsapp, SiGmail } from 'react-icons/si';
+import { SiGithub, SiLinkedin, SiInstagram, SiWhatsapp } from 'react-icons/si';
+import {MdOutgoingMail} from 'react-icons/md';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -111,7 +112,7 @@ const AboutDeveloper = () => {
                     >
                         <SocialLink
                             href="mailto:attendlyhelp@gmail.com"
-                            icon={SiGmail}
+                            icon={MdOutgoingMail}
                             label="Gmail"
                             colorClass="text-green-500 hover:text-green-600 bg-green-500/10 hover:bg-green-500/20"
                         />
