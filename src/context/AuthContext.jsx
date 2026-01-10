@@ -103,44 +103,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('attendly_current_user');
     };
 
-    const forgotPassword = async (email) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/api/users/forgot-password',
-                { email },
-                config
-            );
-            return data;
-        } catch (error) {
-            throw new Error(error.response?.data?.message || 'Failed to send reset email');
-        }
-    };
-
-    const resetPassword = async (email, otp, newPassword) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/api/users/reset-password',
-                { email, otp, newPassword },
-                config
-            );
-            return data;
-        } catch (error) {
-            throw new Error(error.response?.data?.message || 'Failed to reset password');
-        }
-    };
-
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, deleteUser, forgotPassword, resetPassword }}>
+        <AuthContext.Provider value={{ user, login, register, logout, deleteUser }}>
             {children}
         </AuthContext.Provider>
     );

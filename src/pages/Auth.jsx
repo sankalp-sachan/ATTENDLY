@@ -6,8 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [isForgotPassword, setIsForgotPassword] = useState(false);
-    const [resetStep, setResetStep] = useState(1); // 1: Email, 2: OTP & New Password
 
     // Form fields
     const [email, setEmail] = useState('');
@@ -15,42 +13,19 @@ const Auth = () => {
     const [name, setName] = useState('');
     const [institute, setInstitute] = useState('');
 
-    // Reset fields
-    const [otp, setOtp] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-
     const [error, setError] = useState('');
-    const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login, register, forgotPassword, resetPassword } = useAuth();
+    const { login, register } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setSuccessMsg('');
         setLoading(true);
 
         try {
-            if (isForgotPassword) {
-                if (resetStep === 1) {
-                    await forgotPassword(email);
-                    setSuccessMsg('Verification code sent to your email.');
-                    setResetStep(2);
-                } else {
-                    await resetPassword(email, otp, newPassword);
-                    setSuccessMsg('Password reset successful! Please login.');
-                    setTimeout(() => {
-                        setIsForgotPassword(false);
-                        setIsLogin(true);
-                        setResetStep(1);
-                        setOtp('');
-                        setNewPassword('');
-                        setSuccessMsg('');
-                    }, 2000);
-                }
-            } else if (isLogin) {
+            if (isLogin) {
                 // Login Flow
                 await login(email, password);
                 navigate('/');
@@ -64,13 +39,6 @@ const Auth = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const toggleMode = () => {
-        setIsLogin(!isLogin);
-        setIsForgotPassword(false);
-        setError('');
-        setSuccessMsg('');
     };
 
     return (
@@ -89,167 +57,83 @@ const Auth = () => {
                         ATTENDLY
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
-                        {isForgotPassword
-                            ? 'Recover your account.'
-                            : (isLogin ? 'Welcome back! Please login.' : 'Create an account to start tracking.')
-                        }
+                        {isLogin ? 'Welcome back! Please login.' : 'Create an account to start tracking.'}
                     </p>
                 </div>
 
                 <div className="card shadow-2xl">
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <AnimatePresence mode="wait">
-                            {/* Forgot Password Flow */}
-                            {isForgotPassword ? (
+                            {!isLogin && (
                                 <motion.div
-                                    key="forgot-password"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-4"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-2 overflow-hidden"
                                 >
-                                    {resetStep === 1 ? (
-                                        <div className="space-y-2">
-                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                Email Address
-                                            </label>
-                                            <div className="relative">
-                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                <input
-                                                    type="email"
-                                                    required
-                                                    value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
-                                                    placeholder="your@email.com"
-                                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <div className="space-y-2">
-                                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                    Verification Code
-                                                </label>
-                                                <div className="relative">
-                                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                    <input
-                                                        type="text"
-                                                        required
-                                                        value={otp}
-                                                        onChange={(e) => setOtp(e.target.value)}
-                                                        placeholder="123456"
-                                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all tracking-widest"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                    New Password
-                                                </label>
-                                                <div className="relative">
-                                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                    <input
-                                                        type="password"
-                                                        required
-                                                        value={newPassword}
-                                                        onChange={(e) => setNewPassword(e.target.value)}
-                                                        placeholder="New Password"
-                                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-                                </motion.div>
-                            ) : (
-                                /* Login / Register Flow */
-                                <motion.div
-                                    key="main-auth"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="space-y-4"
-                                >
-                                    {!isLogin && (
-                                        <div className="space-y-2 overflow-hidden">
-                                            <div className="relative">
-                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                <input
-                                                    type="text"
-                                                    required={!isLogin}
-                                                    value={name}
-                                                    onChange={(e) => setName(e.target.value)}
-                                                    placeholder="Full Name"
-                                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
-                                                />
-                                            </div>
-
-                                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-2">
-                                                Institute Name
-                                            </label>
-                                            <div className="relative">
-                                                <School className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                <input
-                                                    type="text"
-                                                    required={!isLogin}
-                                                    value={institute}
-                                                    onChange={(e) => setInstitute(e.target.value)}
-                                                    placeholder="e.g. Shishu vishwavidyalaya"
-                                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="space-y-2">
-                                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            Email Address
-                                        </label>
-                                        <div className="relative">
-                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                            <input
-                                                type="email"
-                                                required
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="your@email.com"
-                                                className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
-                                            />
-                                        </div>
+                                    <div className="relative">
+                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            required={!isLogin}
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="Full Name"
+                                            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
+                                        />
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                            Password
-                                        </label>
-                                        <div className="relative">
-                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                            <input
-                                                type="password"
-                                                required={isLogin}
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="••••••••"
-                                                className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
-                                            />
-                                        </div>
+                                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-2">
+                                        Institute Name
+                                    </label>
+                                    <div className="relative">
+                                        <School className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                        <input
+                                            type="text"
+                                            required={!isLogin}
+                                            value={institute}
+                                            onChange={(e) => setInstitute(e.target.value)}
+                                            placeholder="e.g. Shishu vishwavidyalaya"
+                                            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
+                                        />
                                     </div>
-
-                                    {isLogin && (
-                                        <div className="flex justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsForgotPassword(true)}
-                                                className="text-sm font-medium text-primary-600 hover:text-primary-700 hover:underline transition-colors"
-                                            >
-                                                Forgot Password?
-                                            </button>
-                                        </div>
-                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="your@email.com"
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white transition-all"
+                                />
+                            </div>
+                        </div>
 
                         {error && (
                             <motion.div
@@ -258,16 +142,6 @@ const Auth = () => {
                                 className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm font-medium"
                             >
                                 {error}
-                            </motion.div>
-                        )}
-
-                        {successMsg && (
-                            <motion.div
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 text-sm font-medium"
-                            >
-                                {successMsg}
                             </motion.div>
                         )}
 
@@ -280,12 +154,7 @@ const Auth = () => {
                                 <Loader2 className="w-6 h-6 animate-spin" />
                             ) : (
                                 <>
-                                    <span>
-                                        {isForgotPassword
-                                            ? (resetStep === 1 ? 'Send Code' : 'Reset Password')
-                                            : (isLogin ? 'Sign In' : 'Create Account')
-                                        }
-                                    </span>
+                                    <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
                                     <ArrowRight className="w-5 h-5" />
                                 </>
                             )}
@@ -294,29 +163,13 @@ const Auth = () => {
 
                     <div className="mt-8 text-center space-y-2">
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
-                            {isForgotPassword ? (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsForgotPassword(false);
-                                        setResetStep(1);
-                                        setError('');
-                                    }}
-                                    className="text-primary-600 font-bold hover:underline"
-                                >
-                                    Back to Login
-                                </button>
-                            ) : (
-                                <>
-                                    {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-                                    <button
-                                        onClick={toggleMode}
-                                        className="text-primary-600 font-bold hover:underline"
-                                    >
-                                        {isLogin ? 'Sign Up' : 'Log In'}
-                                    </button>
-                                </>
-                            )}
+                            {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+                            <button
+                                onClick={() => setIsLogin(!isLogin)}
+                                className="text-primary-600 font-bold hover:underline"
+                            >
+                                {isLogin ? 'Sign Up' : 'Log In'}
+                            </button>
                         </p>
                     </div>
                 </div>
