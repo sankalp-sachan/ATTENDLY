@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
             };
 
             const { data } = await axios.post(
-                'http://localhost:5000/api/users',
+                'https://attendly-backend-pe5k.onrender.com/api/users',
                 { email, password, name, institute },
                 config
             );
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
                 },
             };
             const { data } = await axios.post(
-                'http://localhost:5000/api/users/verify',
+                'https://attendly-backend-pe5k.onrender.com/api/users/verify',
                 { email, otp },
                 config
             );
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
                 },
             };
             const { data } = await axios.post(
-                'http://localhost:5000/api/users/resend-otp',
+                'https://attendly-backend-pe5k.onrender.com/api/users/resend-otp',
                 { email },
                 config
             );
@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }) => {
             };
 
             const { data } = await axios.post(
-                'http://localhost:5000/api/users/login',
+                'https://attendly-backend-pe5k.onrender.com/api/users/login',
                 { email, password },
                 config
             );
