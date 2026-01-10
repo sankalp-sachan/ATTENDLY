@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SiGithub, SiLinkedin, SiInstagram, SiWhatsapp } from 'react-icons/si';
+import { SiGithub, SiLinkedin, SiInstagram, SiWhatsapp, SiGmail } from 'react-icons/si';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,7 +70,7 @@ const AboutDeveloper = () => {
                                 className="relative w-full h-full overflow-hidden border-4 border-white/20 dark:border-white/10 shadow-2xl bg-slate-900"
                             >
                                 <img
-                                    src="/developer.jpg"
+                                    src="/developer.png"
                                     alt="Sankalp Sachan"
                                     className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
                                 />
@@ -109,6 +109,12 @@ const AboutDeveloper = () => {
                         transition={{ delay: 0.2 }}
                         className="flex flex-wrap justify-center gap-4"
                     >
+                        <SocialLink
+                            href="mailto:attendlyhelp@gmail.com"
+                            icon={SiGmail}
+                            label="Gmail"
+                            colorClass="text-green-500 hover:text-green-600 bg-green-500/10 hover:bg-green-500/20"
+                        />
                         <SocialLink
                             href="https://wa.me/+919005432625"
                             icon={SiWhatsapp}
