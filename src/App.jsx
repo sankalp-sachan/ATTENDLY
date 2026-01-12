@@ -28,6 +28,7 @@ const PublicRoute = ({ children }) => {
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import SplashScreen from './components/SplashScreen';
 import InstallOverlay from './components/InstallOverlay';
+import SessionWarning from './components/SessionWarning';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import AboutDeveloper from './pages/AboutDeveloper';
@@ -47,6 +48,7 @@ function App() {
       <AttendanceProvider>
         <SpeedInsights />
         <InstallOverlay />
+        <SessionWarning />
         <AnimatePresence mode="wait">
           {loading ? (
             <SplashScreen key="splash" />
