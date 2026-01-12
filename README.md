@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="public/banner.png" alt="Attendly Banner" width="100%" />
+  <img src="public/banner.png" alt="Attendly Banner" />
 
   # Attendly
   
