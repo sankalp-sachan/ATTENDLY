@@ -1,103 +1,48 @@
-# 🎓 Attendly - Smart Attendance Tracker
+# Attendly
 
-> **Attendly** is a modern, progressive web application (PWA) designed to help students and professionals track their attendance effortlessly. With a stunning, glassmorphic UI and powerful offline capabilities, staying on top of your goals has never been this beautiful.
+## Overview
+Attendly is a modern, responsive attendance management application built with the MERN stack (MongoDB, Express, React, Node.js). It is designed to streamline the process of tracking attendance for students and administrators, offering a seamless user experience with a focus on performance and aesthetics.
 
-![Attendly Banner](public/pwa-512x512.png)
-*(Note: Replace with a dashboard screenshot if available)*
+## Features
 
----
+### 🔐 Authentication & Security
+- **Secure Login/Signup**: Robust authentication system with protected routes.
+- **Role-Based Access Control**: specialized dashboards for Users and Administrators.
+- **Session Management**: Automatic session handling with warning alerts to prevent data loss.
 
-## ✨ Features
+### 📊 Dashboard & Analytics
+- **User Dashboard**: Real-time view of attendance records, stats, and history.
+- **Admin Dashboard**: Comprehensive tools for managing users and attendance data.
+- **Interactive UI**: Smooth transitions and animations powered by Framer Motion.
 
-- **📱 Progressive Web App (PWA)**: Installable on Android, iOS, and Desktop. Works offline!
-- **🎨 Glassmorphism Design**: specific, premium visual style with blurs, gradients, and smooth transitions.
-- **⚡ Real-time Sync**: Seamlessly syncs data when back online.
-- **📊 Interactive Dashboard**: Visual breakdown of your attendance stats with dynamic progress bars.
-- **🔔 Smart Notifications**: 
-  - Daily motivation to attend classes.
-  - "Low Attendance" warnings if you drop below 75%.
-- **🌓 Dark/Light Mode**: (Coming soon/Integrated) Adaptive interface for day and night.
-- **🔒 Secure Authentication**: Robust login/signup flow with session management.
-- **🛠️ Admin Panel**: Dedicated tools for managing resources and users.
+### 📱 PWA & Mobile Experience
+- **Progressive Web App (PWA)**: Installable on mobile devices for a native app-like experience.
+- **Install Overlay**: Prompts users to install the app for better accessibility.
+- **Splash Screen**: Engaging loading experience with custom animations.
 
----
+### 🚀 Performance & Tech
+- **Speed Insights**: Integrated with Vercel Speed Insights for monitoring performance.
+- **Optimized Build**: Built with Vite for lightning-fast development and optimized production builds.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-This project is built with the latest modern web technologies:
+- **Frontend Framework**: React 19
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Routing**: React Router DOM
+- **State Management**: Context API (Auth & Attendance)
+- **PWA Support**: Vite Plugin PWA
+- **Icons**: Lucide React & React Icons
 
-- **Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + `clsx` + `tailwind-merge`
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Icons**: [Lucide React](https://lucide.dev/) & [React Icons](https://react-icons.github.io/react-icons/)
-- **PWA**: [Vite PWA Plugin](https://vite-pwa-org.netlify.app/)
-- **Utilities**: `date-fns` for time management, `canvas-confetti` for celebrations.
-- **Deployment**: Optimized for Vercel.
+## Project Architecture
 
----
+The frontend follows a modular component-based architecture:
+- `src/components`: Reusable UI components (Splash Screen, Modals, Overlays).
+- `src/pages`: Main application views (Auth, Dashboard, Admin).
+- `src/context`: Global state management for Authentication and Attendance data.
+- `src/services`: API handlers and service logic.
 
-## 🚀 Getting Started
+## Developer
 
-Follow these steps to set up the project locally.
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/attendly.git
-   cd attendly/frontend
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Build for production**
-   ```bash
-   npm run build
-   ```
-
----
-
-## 📱 PWA Features
-
-Attendly is designed as a **mobile-first PWA**. 
-- **Install Prompt**: Custom install overlay appears for eligible devices.
-- **Service Workers**: Caches assets for instant loading and offline usage.
-- **Manifest**: optimized standalone experience with custom icons.
-
----
-
-## 📂 Project Structure
-
-```bash
-src/
-├── components/    # Reusable UI components (Cards, Modals, SplashScreen)
-├── context/       # State management (Auth, Attendance)
-├── pages/         # Full page views (Dashboard, Login, Profile)
-├── assets/        # Static assets
-└── main.jsx       # Entry point
-```
-
----
-
-## 👨‍💻 Developer
-
-Built with ❤️ by **Sankalp**.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+Designed and developed with a focus on modern web standards and user-centric design. Check out the **About Developer** section within the app for more details.
