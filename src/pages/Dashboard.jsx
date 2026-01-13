@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, GraduationCap, Settings, Bell, BellOff, Sun, Moon, Search, Download, LogOut, User as UserIcon, Shield, School, AlertTriangle } from 'lucide-react';
+import { Plus, GraduationCap, Settings, Bell, BellOff, Sun, Moon, Search, Download, LogOut, User as UserIcon, Shield, School, AlertTriangle, Menu, X, Share, PlusSquare } from 'lucide-react';
 import { useAttendance } from '../context/AttendanceContext';
 import { useAuth } from '../context/AuthContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
@@ -11,7 +11,8 @@ import AttendanceCalendar from '../components/AttendanceCalendar';
 import { calculateAttendanceStats } from '../utils/calculations';
 
 const Dashboard = () => {
-    const { isInstallable, showInstallPrompt } = usePWAInstall();
+    const { isInstallable, showInstallPrompt, isIOS, isStandalone } = usePWAInstall();
+    const [isIOSInstallModalOpen, setIsIOSInstallModalOpen] = useState(false);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const {
@@ -49,6 +50,7 @@ const Dashboard = () => {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [selectedClassId, setSelectedClassId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const [newClass, setNewClass] = useState({
         name: '',
@@ -134,9 +136,18 @@ const Dashboard = () => {
                             </div>
                         )}
 
-                        {isInstallable && (
+                        {!isStandalone && (
                             <button
-                                onClick={showInstallPrompt}
+                                onClick={() => {
+                                    console.log('Install clicked', { isInstallable, isIOS });
+                                    if (isInstallable) {
+                                        showInstallPrompt();
+                                    } else if (isIOS) {
+                                        setIsIOSInstallModalOpen(true);
+                                    } else {
+                                        alert("To install, look for the 'Add to Home Screen' or 'Install' option in your browser menu.");
+                                    }
+                                }}
                                 className="p-2 text-primary-600 bg-primary-100 dark:bg-primary-900/30 rounded-xl transition-all flex items-center gap-2 px-3"
                                 title="Install App"
                             >
@@ -144,19 +155,97 @@ const Dashboard = () => {
                                 <span className="text-xs font-bold hidden md:block">Install</span>
                             </button>
                         )}
-                        <button
-                            onClick={toggleDarkMode}
-                            className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
-                        >
-                            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                        </button>
-                        <button
-                            onClick={logout}
-                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
-                            title="Log Out"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
+
+                        {/* Desktop Actions */}
+                        <div className="hidden md:flex items-center gap-2">
+                            <button
+                                onClick={toggleDarkMode}
+                                className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                                title="Toggle Theme"
+                            >
+                                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
+                            <button
+                                onClick={logout}
+                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                                title="Log Out"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Hamburger Menu (Mobile Only) */}
+                        <div className="relative md:hidden">
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-xl transition-all"
+                            >
+                                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            <AnimatePresence>
+                                {isMenuOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                        className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden z-50 p-2"
+                                    >
+                                        <div className="flex flex-col gap-1">
+                                            {/* Dark Mode Toggle */}
+                                            <button
+                                                onClick={() => {
+                                                    toggleDarkMode();
+                                                    setIsMenuOpen(false);
+                                                }}
+                                                className="flex items-center gap-3 w-full p-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-left"
+                                            >
+                                                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-300">
+                                                    {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold dark:text-white">Theme</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{darkMode ? 'Light Mode' : 'Dark Mode'}</p>
+                                                </div>
+                                            </button>
+
+                                            {/* Notifications */}
+                                            <button
+                                                onClick={() => {
+                                                    requestNotificationPermission();
+                                                    setIsMenuOpen(false);
+                                                }}
+                                                className="flex items-center gap-3 w-full p-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-left"
+                                            >
+                                                <div className={`p-2 rounded-full ${notificationsEnabled ? 'bg-green-100 text-green-600 dark:bg-green-900/30' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}>
+                                                    {notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold dark:text-white">Notifications</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{notificationsEnabled ? 'On' : 'Off'}</p>
+                                                </div>
+                                            </button>
+
+                                            <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+
+                                            {/* Logout */}
+                                            <button
+                                                onClick={logout}
+                                                className="flex items-center gap-3 w-full p-3 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors text-left group"
+                                            >
+                                                <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full group-hover:bg-white dark:group-hover:bg-red-900/50 transition-colors">
+                                                    <LogOut className="w-4 h-4" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold text-red-600 dark:text-red-400">Log Out</p>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                         <button
                             onClick={() => setIsAddModalOpen(true)}
                             className="px-4 py-2 bg-primary-600 text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary-500/20 hover:bg-primary-700 active:scale-95 transition-all text-sm sm:text-base"
@@ -322,6 +411,44 @@ const Dashboard = () => {
                         onMark={handleMarkAttendance}
                     />
                 )}
+            </Modal>
+            {/* iOS Install Instructions Modal */}
+            <Modal
+                isOpen={isIOSInstallModalOpen}
+                onClose={() => setIsIOSInstallModalOpen(false)}
+                title="Install on iOS"
+            >
+                <div className="flex flex-col gap-6 text-center">
+                    <div className="flex justify-center">
+                        <Share className="w-12 h-12 text-blue-500" />
+                    </div>
+                    <div>
+                        <p className="text-slate-600 dark:text-slate-300 font-medium mb-4">
+                            To install Attendly on your iPhone or iPad:
+                        </p>
+                        <ol className="space-y-4 text-left text-sm text-slate-500 dark:text-slate-400">
+                            <li className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full font-bold text-xs">1</span>
+                                <span>Tap the <strong className="text-slate-700 dark:text-slate-200">Share</strong> button in Safari's menu bar.</span>
+                            </li>
+                            <li className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full font-bold text-xs">2</span>
+                                <span>Scroll down and tap <strong className="text-slate-700 dark:text-slate-200">Add to Home Screen</strong>.</span>
+                                <PlusSquare className="w-5 h-5 ml-auto text-slate-400" />
+                            </li>
+                            <li className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded-full font-bold text-xs">3</span>
+                                <span>Tap <strong className="text-slate-700 dark:text-slate-200">Add</strong> in the top right corner.</span>
+                            </li>
+                        </ol>
+                    </div>
+                    <button
+                        onClick={() => setIsIOSInstallModalOpen(false)}
+                        className="btn-primary w-full py-3"
+                    >
+                        Got it!
+                    </button>
+                </div>
             </Modal>
         </div>
     );

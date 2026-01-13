@@ -4,7 +4,20 @@ export const usePWAInstall = () => {
     const [installPrompt, setInstallPrompt] = useState(null);
     const [isInstallable, setIsInstallable] = useState(false);
 
+    const [isIOS, setIsIOS] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
+
     useEffect(() => {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        const ios = /iphone|ipad|ipod/.test(userAgent);
+        setIsIOS(ios);
+
+        const isInStandaloneMode = () => {
+            return (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');
+        };
+
+        setIsStandalone(isInStandaloneMode());
+
         const handler = (e) => {
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
@@ -32,5 +45,5 @@ export const usePWAInstall = () => {
         }
     };
 
-    return { isInstallable, showInstallPrompt };
+    return { isInstallable, showInstallPrompt, isIOS, isStandalone };
 };
