@@ -8,10 +8,14 @@ registerSW({ immediate: true })
 
 import ErrorBoundary from './components/ErrorBoundary'
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </GoogleOAuthProvider>
   </StrictMode>,
 )

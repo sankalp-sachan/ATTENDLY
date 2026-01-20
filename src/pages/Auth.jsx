@@ -4,6 +4,8 @@ import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2, School } from 'lu
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+import { GoogleLogin } from '@react-oauth/google';
+
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
 
@@ -16,8 +18,28 @@ const Auth = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login, register } = useAuth();
+    const { login, register, googleLogin } = useAuth();
     const navigate = useNavigate();
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setError('');
+        setLoading(true);
+        try {
+            await googleLogin(credentialResponse.credential);
+            navigate('/');
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            // Give a small delay or keep loading true if navigating immediately
+            // But usually good to set false unless we unmount
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleError = () => {
+        setError('Google Sign In was unsuccessful. Try again.');
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -160,6 +182,23 @@ const Auth = () => {
                             )}
                         </button>
                     </form>
+
+                    <div className="my-6 flex items-center gap-4">
+                        <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1" />
+                        <span className="text-slate-400 text-xs font-medium uppercase">Or continue with</span>
+                        <div className="h-px bg-slate-200 dark:bg-slate-800 flex-1" />
+                    </div>
+
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            theme="filled_blue"
+                            shape="circle"
+                            text={isLogin ? "signin_with" : "signup_with"}
+                            width="100%"
+                        />
+                    </div>
 
                     <div className="mt-8 text-center space-y-2">
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
