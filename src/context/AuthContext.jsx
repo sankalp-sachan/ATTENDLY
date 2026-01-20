@@ -92,6 +92,28 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const googleLogin = async (credential) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const { data } = await axios.post(
+                'https://attendly-backend-pe5k.onrender.com/api/users/google-auth',
+                { token: credential },
+                config
+            );
+
+            setUser(data);
+            return data;
+        } catch (error) {
+            console.error("Google Login error:", error);
+            throw new Error(error.response?.data?.message || 'Google Login failed');
+        }
+    };
+
     const deleteUser = async (userId) => {
         // Placeholder: Backend does not currently support user deletion via API
         console.warn("deleteUser not implemented on backend endpoints yet.");
@@ -104,7 +126,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, deleteUser }}>
+        <AuthContext.Provider value={{ user, login, register, googleLogin, logout, deleteUser }}>
             {children}
         </AuthContext.Provider>
     );

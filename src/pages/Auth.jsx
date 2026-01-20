@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2, School } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -16,7 +17,7 @@ const Auth = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { login, register } = useAuth();
+    const { login, register, googleLogin } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -36,6 +37,18 @@ const Auth = () => {
             }
         } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            setLoading(true);
+            await googleLogin(credentialResponse.credential);
+            navigate('/');
+        } catch (err) {
+            setError(err.message || "Google Login Failed");
         } finally {
             setLoading(false);
         }
@@ -160,6 +173,23 @@ const Auth = () => {
                             )}
                         </button>
                     </form>
+
+                    <div className="mt-6">
+                        <div className="relative flex py-2 items-center mb-4">
+                            <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                            <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-semibold">OR</span>
+                            <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                        </div>
+                        <div className="flex justify-center w-full">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => setError('Google Login Failed')}
+                                theme="filled_blue"
+                                shape="circle"
+                                width="300"
+                            />
+                        </div>
+                    </div>
 
                     <div className="mt-8 text-center space-y-2">
                         <p className="text-slate-500 dark:text-slate-400 text-sm">
