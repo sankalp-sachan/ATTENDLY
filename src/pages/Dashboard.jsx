@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, GraduationCap, Settings, Bell, BellOff, Sun, Moon, Search, Download, LogOut, User as UserIcon, Shield, School, AlertTriangle, Menu, X, Share, PlusSquare } from 'lucide-react';
+import { Plus, GraduationCap, Settings, Bell, BellOff, Sun, Moon, Search, Download, LogOut, User as UserIcon, Shield, School, AlertTriangle, Menu, X, Share, PlusSquare, Info } from 'lucide-react';
 import { useAttendance } from '../context/AttendanceContext';
 import { useAuth } from '../context/AuthContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
@@ -159,6 +159,13 @@ const Dashboard = () => {
                         {/* Desktop Actions */}
                         <div className="hidden md:flex items-center gap-2">
                             <button
+                                onClick={() => navigate('/about-app')}
+                                className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                                title="About App"
+                            >
+                                <Info className="w-5 h-5" />
+                            </button>
+                            <button
                                 onClick={toggleDarkMode}
                                 className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
                                 title="Toggle Theme"
@@ -224,6 +231,25 @@ const Dashboard = () => {
                                                 <div className="flex-1">
                                                     <p className="text-sm font-bold dark:text-white">Notifications</p>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">{notificationsEnabled ? 'On' : 'Off'}</p>
+                                                </div>
+                                            </button>
+
+                                            <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+
+                                            {/* About App Link */}
+                                            <button
+                                                onClick={() => {
+                                                    navigate('/about-app');
+                                                    setIsMenuOpen(false);
+                                                }}
+                                                className="flex items-center gap-3 w-full p-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-left"
+                                            >
+                                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+                                                    <Info className="w-4 h-4" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold dark:text-white">About App</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Guide & Info</p>
                                                 </div>
                                             </button>
 

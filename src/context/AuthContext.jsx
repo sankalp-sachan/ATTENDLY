@@ -120,13 +120,36 @@ export const AuthProvider = ({ children }) => {
         // If you have a backend route, you would call: await axios.delete(`/api/users/${userId}`);
     };
 
+    const updateUserProfile = async (updatedData) => {
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+            };
+
+            const { data } = await axios.put(
+                'https://attendly-backend-pe5k.onrender.com/api/users/profile',
+                updatedData,
+                config
+            );
+
+            setUser(data);
+            return data;
+        } catch (error) {
+            console.error("Update Profile error:", error);
+            throw new Error(error.response?.data?.message || 'Update failed');
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('attendly_current_user');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, googleLogin, logout, deleteUser }}>
+        <AuthContext.Provider value={{ user, login, register, googleLogin, updateUserProfile, logout, deleteUser }}>
             {children}
         </AuthContext.Provider>
     );

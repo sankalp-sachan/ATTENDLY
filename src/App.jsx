@@ -32,6 +32,7 @@ import SessionWarning from './components/SessionWarning';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import AboutDeveloper from './pages/AboutDeveloper';
+import AboutApp from './pages/AboutApp';
 
 function App() {
   const [loading, setLoading] = React.useState(true);
@@ -73,6 +74,10 @@ function App() {
                   <Route
                     path="/about-developer"
                     element={<AboutDeveloper />}
+                  />
+                  <Route
+                    path="/about-app"
+                    element={<AboutApp />}
                   />
                   <Route
                     path="/"
