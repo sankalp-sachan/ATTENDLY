@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/auth" />;
-  if (user.role !== 'admin') return <Navigate to="/" />;
+  if (user.role !== 'admin' && user.role !== 'assistant-admin') return <Navigate to="/" />;
   return children;
 };
 

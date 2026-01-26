@@ -120,7 +120,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        {user.role === 'admin' ? (
+                        {user.role === 'admin' || user.role === 'assistant-admin' ? (
                             <button
                                 onClick={() => navigate('/admin')}
                                 className="hidden md:flex p-2 text-primary-600 bg-primary-100 dark:bg-primary-900/30 rounded-xl transition-all items-center gap-2 px-3"
@@ -201,7 +201,7 @@ const Dashboard = () => {
                                     >
                                         <div className="flex flex-col gap-1">
                                             {/* Admin Panel (Mobile) */}
-                                            {user?.role === 'admin' && (
+                                            {(user?.role === 'admin' || user?.role === 'assistant-admin') && (
                                                 <>
                                                     <button
                                                         onClick={() => {

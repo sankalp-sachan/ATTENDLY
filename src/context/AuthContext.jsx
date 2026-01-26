@@ -36,9 +36,9 @@ export const AuthProvider = ({ children }) => {
         let interval;
         if (user) {
             localStorage.setItem('attendly_current_user', JSON.stringify(user));
-            if (user.role === 'admin') {
+            if (user.role === 'admin' || user.role === 'assistant-admin') {
                 fetchUsers();
-                interval = setInterval(fetchUsers, 1500); // 1.5s poll for admin
+                interval = setInterval(fetchUsers, 1500); // 1.5s poll for admin/assistant-admin
             }
         } else {
             localStorage.removeItem('attendly_current_user');
