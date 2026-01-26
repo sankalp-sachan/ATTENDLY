@@ -123,11 +123,11 @@ const Dashboard = () => {
                         {user.role === 'admin' ? (
                             <button
                                 onClick={() => navigate('/admin')}
-                                className="p-2 text-primary-600 bg-primary-100 dark:bg-primary-900/30 rounded-xl transition-all flex items-center gap-2 px-3"
+                                className="hidden md:flex p-2 text-primary-600 bg-primary-100 dark:bg-primary-900/30 rounded-xl transition-all items-center gap-2 px-3"
                                 title="Admin Panel"
                             >
                                 <Shield className="w-5 h-5" />
-                                <span className="text-xs font-bold hidden md:block">Admin Panel</span>
+                                <span className="text-xs font-bold">Admin Panel</span>
                             </button>
                         ) : (
                             <div className="p-2 text-green-500 bg-green-500/10 rounded-xl flex items-center gap-2" title="Notifications Forced On">
@@ -200,6 +200,28 @@ const Dashboard = () => {
                                         className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden z-50 p-2"
                                     >
                                         <div className="flex flex-col gap-1">
+                                            {/* Admin Panel (Mobile) */}
+                                            {user?.role === 'admin' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => {
+                                                            navigate('/admin');
+                                                            setIsMenuOpen(false);
+                                                        }}
+                                                        className="flex items-center gap-3 w-full p-3 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors text-left"
+                                                    >
+                                                        <div className="p-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full">
+                                                            <Shield className="w-4 h-4" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm font-bold dark:text-white">Admin Panel</p>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">User Management</p>
+                                                        </div>
+                                                    </button>
+                                                    <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+                                                </>
+                                            )}
+
                                             {/* Dark Mode Toggle */}
                                             <button
                                                 onClick={() => {
