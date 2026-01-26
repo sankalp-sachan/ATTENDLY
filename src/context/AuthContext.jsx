@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -16,33 +16,37 @@ export const AuthProvider = ({ children }) => {
         const savedUser = localStorage.getItem('attendly_current_user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
+    const [users, setUsers] = useState([]);
 
     // Clean up local mock users since we are now connected to backend
     useEffect(() => {
         localStorage.removeItem('attendly_users');
     }, []);
 
+    const fetchUsers = React.useCallback(async () => {
+        try {
+            const { data } = await api.get('/users');
+            setUsers(data);
+        } catch (error) {
+            console.error("Fetch users error:", error);
+        }
+    }, []);
+
     useEffect(() => {
         if (user) {
             localStorage.setItem('attendly_current_user', JSON.stringify(user));
+            if (user.role === 'admin') {
+                fetchUsers();
+            }
         } else {
             localStorage.removeItem('attendly_current_user');
+            setUsers([]);
         }
     }, [user]);
 
     const register = async (email, password, name, institute) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-
-            const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/api/users',
-                { email, password, name, institute },
-                config
-            );
+            const { data } = await api.post('/users', { email, password, name, institute });
 
             // If token is present, auto-login (legacy or if verification disabled)
             if (data.token) {
@@ -56,32 +60,16 @@ export const AuthProvider = ({ children }) => {
             console.error("Registration error:", error);
             const serverError = error.response?.data?.error;
             const message = error.response?.data?.message || 'Registration failed';
-
-            // Append explicit server error details if available
             throw new Error(serverError ? `${message}: ${serverError}` : message);
         }
     };
 
-
-
     const login = async (email, password) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-
-            const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/api/users/login',
-                { email, password },
-                config
-            );
-
+            const { data } = await api.post('/users/login', { email, password });
             setUser(data);
             return data;
         } catch (error) {
-            // Check if error is due to unverified account
             if (error.response?.status === 401 && error.response?.data?.isUnverified) {
                 const err = new Error(error.response.data.message);
                 err.isUnverified = true;
@@ -94,18 +82,7 @@ export const AuthProvider = ({ children }) => {
 
     const googleLogin = async (credential) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-
-            const { data } = await axios.post(
-                'https://attendly-backend-pe5k.onrender.com/api/users/google-auth',
-                { token: credential },
-                config
-            );
-
+            const { data } = await api.post('/users/google-auth', { token: credential });
             setUser(data);
             return data;
         } catch (error) {
@@ -115,26 +92,30 @@ export const AuthProvider = ({ children }) => {
     };
 
     const deleteUser = async (userId) => {
-        // Placeholder: Backend does not currently support user deletion via API
-        console.warn("deleteUser not implemented on backend endpoints yet.");
-        // If you have a backend route, you would call: await axios.delete(`/api/users/${userId}`);
+        try {
+            await api.delete(`/users/${userId}`);
+            setUsers(users.filter(u => u._id !== userId));
+            return { success: true };
+        } catch (error) {
+            console.error("Delete user error:", error);
+            throw new Error(error.response?.data?.message || 'Delete failed');
+        }
+    };
+
+    const updateUserRole = async (userId, role) => {
+        try {
+            const { data } = await api.put(`/users/${userId}/role`, { role });
+            setUsers(users.map(u => u._id === userId ? { ...u, role: data.role } : u));
+            return data;
+        } catch (error) {
+            console.error("Update role error:", error);
+            throw new Error(error.response?.data?.message || 'Update role failed');
+        }
     };
 
     const updateUserProfile = async (updatedData) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
-                },
-            };
-
-            const { data } = await axios.put(
-                'https://attendly-backend-pe5k.onrender.com/api/users/profile',
-                updatedData,
-                config
-            );
-
+            const { data } = await api.put('/users/profile', updatedData);
             setUser(data);
             return data;
         } catch (error) {
@@ -149,7 +130,18 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, googleLogin, updateUserProfile, logout, deleteUser }}>
+        <AuthContext.Provider value={{
+            user,
+            users,
+            login,
+            register,
+            googleLogin,
+            updateUserProfile,
+            logout,
+            deleteUser,
+            updateUserRole,
+            fetchUsers
+        }}>
             {children}
         </AuthContext.Provider>
     );

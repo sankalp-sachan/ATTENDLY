@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, GraduationCap, ChevronLeft, Search } from 'lucide-react';
+import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
-    const { users, user, logout, deleteUser } = useAuth();
+    const { users, user, logout, deleteUser, updateUserRole, fetchUsers } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (user?.role === 'admin') {
+            fetchUsers();
+        }
+    }, [user, fetchUsers]);
 
     // Guard: Only allow admin role
     if (user?.role !== 'admin') {
@@ -28,10 +34,21 @@ const AdminDashboard = () => {
         u.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleDelete = (id, name) => {
+    const handleDelete = async (id, name) => {
         if (window.confirm(`Are you sure you want to delete user "${name}"? This will erase all their attendance data.`)) {
             try {
-                deleteUser(id);
+                await deleteUser(id);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+    };
+
+    const handleToggleRole = async (u) => {
+        const newRole = u.role === 'admin' ? 'user' : 'admin';
+        if (window.confirm(`Are you sure you want to change ${u.name}'s role to ${newRole.toUpperCase()}?`)) {
+            try {
+                await updateUserRole(u._id, newRole);
             } catch (err) {
                 alert(err.message);
             }
@@ -52,7 +69,7 @@ const AdminDashboard = () => {
                         </button>
                         <div className="flex items-center gap-2">
                             <Shield className="w-8 h-8 text-primary-600" />
-                            <h1 className="text-2xl font-black bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+                            <h1 className="text-2xl font-black bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent text-nowrap">
                                 ADMIN PANEL
                             </h1>
                         </div>
@@ -63,7 +80,7 @@ const AdminDashboard = () => {
                         className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all flex items-center gap-2 px-3"
                     >
                         <LogOut className="w-5 h-5" />
-                        <span className="text-sm font-bold hidden sm:block">Log Out</span>
+                        <span className="text-sm font-bold hidden sm:block text-nowrap">Log Out</span>
                     </button>
                 </div>
             </header>
@@ -82,7 +99,7 @@ const AdminDashboard = () => {
                             placeholder="Search by name or email..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white shadow-sm"
+                            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white shadow-sm transition-all"
                         />
                     </div>
                 </div>
@@ -96,7 +113,9 @@ const AdminDashboard = () => {
                     </div>
                     <div className="card text-center p-8 border-primary-500/20 bg-primary-500/5">
                         <Shield className="w-8 h-8 text-primary-600 mx-auto mb-3" />
-                        <p className="text-3xl font-black dark:text-white">1</p>
+                        <p className="text-3xl font-black dark:text-white">
+                            {users.filter(u => u.role === 'admin').length}
+                        </p>
                         <p className="text-sm font-bold text-slate-500 uppercase">Administrators</p>
                     </div>
                 </div>
@@ -107,38 +126,50 @@ const AdminDashboard = () => {
                         {filteredUsers.map((u) => (
                             <motion.div
                                 layout
-                                key={u.id}
-                                className="flex items-center justify-between p-4 sm:p-6 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                                key={u._id}
+                                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors gap-4"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700">
+                                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700 flex-shrink-0">
                                         <UserIcon className="w-6 h-6" />
                                     </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-bold dark:text-white text-lg">{u.name}</h4>
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <h4 className="font-bold dark:text-white text-lg truncate max-w-[150px] sm:max-w-none">{u.name}</h4>
                                             {u.role === 'admin' && (
                                                 <span className="px-2 py-0.5 bg-primary-500/10 text-primary-500 text-[10px] font-black uppercase rounded-md border border-primary-500/20">
                                                     Admin
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                                            <Mail className="w-3.5 h-3.5" />
-                                            {u.email}
+                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 truncate">
+                                            <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                                            <span className="truncate">{u.email}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    {u.role !== 'admin' && (
-                                        <button
-                                            onClick={() => handleDelete(u.id, u.name)}
-                                            className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
-                                            title="Delete User"
-                                        >
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
+                                <div className="flex items-center gap-2 justify-end sm:justify-start">
+                                    {u.email !== user.email && (
+                                        <>
+                                            <button
+                                                onClick={() => handleToggleRole(u)}
+                                                className={`p-3 rounded-xl transition-all flex items-center gap-2 ${u.role === 'admin'
+                                                    ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10'
+                                                    : 'text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-500/10'
+                                                    }`}
+                                                title={u.role === 'admin' ? "Remove Admin Access" : "Grant Admin Access"}
+                                            >
+                                                <UserCog className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(u._id, u.name)}
+                                                className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                                                title="Delete User"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </motion.div>

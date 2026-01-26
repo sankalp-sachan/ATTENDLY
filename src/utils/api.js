@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://attendly-backend-pe5k.onrender.com/api',
+    baseURL: 'http://127.0.0.1:5000/api',
 });
 
 // Add a request interceptor to attach the token
