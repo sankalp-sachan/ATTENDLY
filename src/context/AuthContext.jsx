@@ -33,16 +33,21 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
+        let interval;
         if (user) {
             localStorage.setItem('attendly_current_user', JSON.stringify(user));
             if (user.role === 'admin') {
                 fetchUsers();
+                interval = setInterval(fetchUsers, 1500); // 1.5s poll for admin
             }
         } else {
             localStorage.removeItem('attendly_current_user');
             setUsers([]);
         }
-    }, [user]);
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [user, fetchUsers]);
 
     const register = async (email, password, name, institute) => {
         try {

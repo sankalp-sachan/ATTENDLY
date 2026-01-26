@@ -25,27 +25,36 @@ export const AttendanceProvider = ({ children }) => {
         localStorage.setItem('notifications_enabled', 'true');
     }, [user]);
 
-    // Fetch Classes from Backend (Syncing)
-    useEffect(() => {
-        const fetchClasses = async () => {
-            if (user) {
-                try {
-                    const { data } = await api.get('/attendance');
-                    // Normalize _id to id for frontend compatibility
-                    const formattedClasses = data.map(c => ({
-                        ...c,
-                        id: c._id || c.id
-                    }));
-                    setClasses(formattedClasses);
-                } catch (error) {
-                    console.error("Failed to sync attendance data:", error);
-                }
-            } else {
-                setClasses([]);
-            }
-        };
-        fetchClasses();
+    const fetchClasses = React.useCallback(async () => {
+        if (!user) return;
+        try {
+            const { data } = await api.get('/attendance');
+            // Normalize _id to id for frontend compatibility
+            const formattedClasses = data.map(c => ({
+                ...c,
+                id: c._id || c.id
+            }));
+
+            // Only update state if data has actually changed to prevent unnecessary re-renders
+            setClasses(prev => {
+                if (JSON.stringify(prev) === JSON.stringify(formattedClasses)) return prev;
+                return formattedClasses;
+            });
+        } catch (error) {
+            console.error("Failed to sync attendance data:", error);
+        }
     }, [user]);
+
+    // Initial Fetch and Polling (Syncing Every 10 Seconds)
+    useEffect(() => {
+        if (user) {
+            fetchClasses();
+            const interval = setInterval(fetchClasses, 1500); // 1.5s poll
+            return () => clearInterval(interval);
+        } else {
+            setClasses([]);
+        }
+    }, [user, fetchClasses]);
 
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('dark_mode');
@@ -244,7 +253,7 @@ export const AttendanceProvider = ({ children }) => {
                         "Keep your streak alive! Join class. 🔥",
                         "Your future self will thank you for attending! 🚀",
                         "Success occurs when opportunity meets preparation. 🌟",
-                        "The beautiful thing about learning is that no one can take it away from you. 💡", 
+                        "The beautiful thing about learning is that no one can take it away from you. 💡",
                         "Education is the passport to the future. 🌍",
                         "Develop a passion for learning. If you do, you will never cease to grow. 🌱"
 
