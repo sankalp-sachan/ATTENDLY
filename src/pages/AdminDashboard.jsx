@@ -14,6 +14,9 @@ const AdminDashboard = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [userAttendance, setUserAttendance] = useState([]);
     const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+    const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+    const [verifyPassword, setVerifyPassword] = useState('');
+    const [pendingAction, setPendingAction] = useState(null);
     const [loadingAttendance, setLoadingAttendance] = useState(false);
     const navigate = useNavigate();
 
@@ -42,37 +45,40 @@ const AdminDashboard = () => {
         u.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleDelete = async (id, name) => {
-        if (window.confirm(`Are you sure you want to delete user "${name}"? This will erase all their attendance data.`)) {
-            try {
-                await deleteUser(id);
-            } catch (err) {
-                alert(err.message);
+    const handleActionSubmit = async (e) => {
+        e.preventDefault();
+        if (!pendingAction) return;
+
+        try {
+            if (pendingAction.type === 'delete') {
+                await deleteUser(pendingAction.id, verifyPassword);
+            } else if (pendingAction.type === 'role') {
+                await updateUserRole(pendingAction.id, pendingAction.role, verifyPassword);
             }
+            setIsVerifyModalOpen(false);
+            setVerifyPassword('');
+            setPendingAction(null);
+        } catch (err) {
+            alert(err.message);
         }
     };
 
-    const handleToggleRole = async (u) => {
+    const handleDelete = (id, name) => {
+        setPendingAction({ type: 'delete', id, name, message: `delete user "${name}"` });
+        setIsVerifyModalOpen(true);
+    };
+
+    const handleToggleRole = (u) => {
         const newRole = u.role === 'admin' ? 'user' : 'admin';
-        if (window.confirm(`Are you sure you want to change ${u.name}'s role to ${newRole.toUpperCase()}?`)) {
-            try {
-                await updateUserRole(u._id, newRole);
-            } catch (err) {
-                alert(err.message);
-            }
-        }
+        setPendingAction({ type: 'role', id: u._id, role: newRole, name: u.name, message: `change ${u.name}'s role to ${newRole.toUpperCase()}` });
+        setIsVerifyModalOpen(true);
     };
 
-    const handleToggleAssistant = async (u) => {
+    const handleToggleAssistant = (u) => {
         const newRole = u.role === 'assistant-admin' ? 'user' : 'assistant-admin';
-        const action = u.role === 'assistant-admin' ? 'remove assistant privileges from' : 'make assistant admin';
-        if (window.confirm(`Are you sure you want to ${action} ${u.name}?`)) {
-            try {
-                await updateUserRole(u._id, newRole);
-            } catch (err) {
-                alert(err.message);
-            }
-        }
+        const actionDesc = u.role === 'assistant-admin' ? 'remove assistant privileges from' : 'make assistant admin';
+        setPendingAction({ type: 'role', id: u._id, role: newRole, name: u.name, message: `${actionDesc} ${u.name}` });
+        setIsVerifyModalOpen(true);
     };
 
     const handleViewAttendance = async (u) => {
@@ -310,6 +316,60 @@ const AdminDashboard = () => {
                         })}
                     </div>
                 )}
+            </Modal>
+            {/* Password Verification Modal */}
+            <Modal
+                isOpen={isVerifyModalOpen}
+                onClose={() => {
+                    setIsVerifyModalOpen(false);
+                    setVerifyPassword('');
+                    setPendingAction(null);
+                }}
+                title="Verify Administrative Access"
+            >
+                <form onSubmit={handleActionSubmit} className="space-y-6">
+                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <p className="text-sm font-bold">
+                            You are about to {pendingAction?.message}. This action requires confirmation.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                            Admin Password
+                        </label>
+                        <input
+                            type="password"
+                            required
+                            autoFocus
+                            placeholder="••••••••"
+                            value={verifyPassword}
+                            onChange={(e) => setVerifyPassword(e.target.value)}
+                            className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary-500 outline-none dark:text-white"
+                        />
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsVerifyModalOpen(false);
+                                setVerifyPassword('');
+                                setPendingAction(null);
+                            }}
+                            className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-primary-500/20"
+                        >
+                            Confirm Action
+                        </button>
+                    </div>
+                </form>
             </Modal>
         </div>
     );

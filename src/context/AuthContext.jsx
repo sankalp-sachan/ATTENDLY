@@ -96,9 +96,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const deleteUser = async (userId) => {
+    const deleteUser = async (userId, adminPassword) => {
         try {
-            await api.delete(`/users/${userId}`);
+            await api.delete(`/users/${userId}`, { data: { adminPassword } });
             setUsers(users.filter(u => u._id !== userId));
             return { success: true };
         } catch (error) {
@@ -107,9 +107,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const updateUserRole = async (userId, role) => {
+    const updateUserRole = async (userId, role, adminPassword) => {
         try {
-            const { data } = await api.put(`/users/${userId}/role`, { role });
+            const { data } = await api.put(`/users/${userId}/role`, { role, adminPassword });
             setUsers(users.map(u => u._id === userId ? { ...u, role: data.role } : u));
             return data;
         } catch (error) {
