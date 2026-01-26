@@ -151,6 +151,19 @@ export const AttendanceProvider = ({ children }) => {
         }
     };
 
+    const getUserAttendance = async (userId) => {
+        try {
+            const { data } = await api.get(`/attendance/user/${userId}`);
+            return data.map(c => ({
+                ...c,
+                id: c._id || c.id
+            }));
+        } catch (error) {
+            console.error("Error fetching user attendance:", error);
+            throw error;
+        }
+    };
+
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
     const requestNotificationPermission = async () => {
@@ -330,6 +343,7 @@ export const AttendanceProvider = ({ children }) => {
             removeClass,
             updateAttendance,
             updateClass,
+            getUserAttendance,
             darkMode,
             toggleDarkMode,
             notificationsEnabled,

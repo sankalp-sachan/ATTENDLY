@@ -1,7 +1,7 @@
 import { startOfDay, isBefore, isAfter, parseISO, format, eachDayOfInterval, isSameDay } from 'date-fns';
 
 export const calculateAttendanceStats = (classData) => {
-    const { attendance, startDate } = classData;
+    const { attendance = {}, startDate } = classData;
     const dateToParse = startDate || new Date().toISOString().split('T')[0];
     const start = startOfDay(parseISO(dateToParse));
     const today = startOfDay(new Date());

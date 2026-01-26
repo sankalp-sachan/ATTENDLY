@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog } from 'lucide-react';
+import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useAttendance } from '../context/AttendanceContext';
 import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Modal';
+import { calculateAttendanceStats, getStatusColor } from '../utils/calculations';
 
 const AdminDashboard = () => {
     const { users, user, logout, deleteUser, updateUserRole, fetchUsers } = useAuth();
+    const { getUserAttendance } = useAttendance();
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [userAttendance, setUserAttendance] = useState([]);
+    const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+    const [loadingAttendance, setLoadingAttendance] = useState(false);
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -52,6 +60,20 @@ const AdminDashboard = () => {
             } catch (err) {
                 alert(err.message);
             }
+        }
+    };
+
+    const handleViewAttendance = async (u) => {
+        setSelectedUser(u);
+        setLoadingAttendance(true);
+        setIsAttendanceModalOpen(true);
+        try {
+            const data = await getUserAttendance(u._id);
+            setUserAttendance(data);
+        } catch (err) {
+            alert("Failed to fetch attendance data.");
+        } finally {
+            setLoadingAttendance(false);
         }
     };
 
@@ -129,7 +151,10 @@ const AdminDashboard = () => {
                                 key={u._id}
                                 className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors gap-4"
                             >
-                                <div className="flex items-center gap-4">
+                                <div
+                                    className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
+                                    onClick={() => handleViewAttendance(u)}
+                                >
                                     <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700 flex-shrink-0">
                                         <UserIcon className="w-6 h-6" />
                                     </div>
@@ -150,6 +175,13 @@ const AdminDashboard = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2 justify-end sm:justify-start">
+                                    <button
+                                        onClick={() => handleViewAttendance(u)}
+                                        className="p-3 text-slate-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 rounded-xl transition-all"
+                                        title="View Attendance"
+                                    >
+                                        <BarChart2 className="w-5 h-5" />
+                                    </button>
                                     {u.email !== user.email && (
                                         <>
                                             <button
@@ -184,6 +216,72 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             </main>
+
+            {/* Attendance Modal */}
+            <Modal
+                isOpen={isAttendanceModalOpen}
+                onClose={() => setIsAttendanceModalOpen(false)}
+                title={selectedUser ? `${selectedUser.name}'s Attendance` : 'User Attendance'}
+            >
+                {loadingAttendance ? (
+                    <div className="py-12 text-center text-slate-500">
+                        <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4" />
+                        <p className="font-bold">Fetching attendance data...</p>
+                    </div>
+                ) : userAttendance.length === 0 ? (
+                    <div className="py-12 text-center text-slate-500">
+                        <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                        <p className="font-bold">No classes found for this user.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                        {userAttendance.map((c) => {
+                            const stats = calculateAttendanceStats(c);
+                            return (
+                                <div key={c.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h5 className="font-black dark:text-white text-lg">{c.name}</h5>
+                                            <p className="text-xs text-slate-500 flex items-center gap-1">
+                                                <Calendar className="w-3 h-3" />
+                                                Started: {new Date(c.startDate).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <div className={`px-3 py-1 rounded-full text-xs font-black ${getStatusColor(stats.percentage, c.targetPercentage)}`}>
+                                            {stats.percentage}%
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-2 text-center">
+                                        <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Present</p>
+                                            <p className="text-lg font-black text-green-500">{stats.presentCount}</p>
+                                        </div>
+                                        <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Absent</p>
+                                            <p className="text-lg font-black text-red-500">{stats.absentCount}</p>
+                                        </div>
+                                        <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Total</p>
+                                            <p className="text-lg font-black dark:text-white">{stats.totalWorkingDays}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-3 w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-primary-500 transition-all duration-500"
+                                            style={{ width: `${Math.min(stats.percentage, 100)}%` }}
+                                        />
+                                    </div>
+                                    <p className="mt-2 text-[10px] text-slate-500 text-center font-bold">
+                                        Target: {c.targetPercentage}%
+                                    </p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };
