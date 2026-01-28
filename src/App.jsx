@@ -33,6 +33,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import AboutDeveloper from './pages/AboutDeveloper';
 import AboutApp from './pages/AboutApp';
+import Referral from './pages/Referral';
 
 function App() {
   const [loading, setLoading] = React.useState(true);
@@ -78,6 +79,14 @@ function App() {
                   <Route
                     path="/about-app"
                     element={<AboutApp />}
+                  />
+                  <Route
+                    path="/referral"
+                    element={
+                      <ProtectedRoute>
+                        <Referral />
+                      </ProtectedRoute>
+                    }
                   />
                   <Route
                     path="/"

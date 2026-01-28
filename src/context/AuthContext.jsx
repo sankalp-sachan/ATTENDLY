@@ -129,6 +129,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const applyReferralCode = async (code) => {
+        try {
+            const { data } = await api.post('/users/referral', { code });
+            const updatedUser = { ...user, ...data.user, token: user.token }; // Keep the token
+            setUser(updatedUser);
+            return data;
+        } catch (error) {
+            console.error("Apply Referral error:", error);
+            throw new Error(error.response?.data?.message || 'Failed to apply referral code');
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('attendly_current_user');
@@ -142,6 +154,7 @@ export const AuthProvider = ({ children }) => {
             register,
             googleLogin,
             updateUserProfile,
+            applyReferralCode,
             logout,
             deleteUser,
             updateUserRole,

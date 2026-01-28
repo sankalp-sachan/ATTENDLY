@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, GraduationCap, Settings, Bell, BellOff, Sun, Moon, Search, Download, LogOut, User as UserIcon, Shield, School, AlertTriangle, Menu, X, Share, PlusSquare, Info } from 'lucide-react';
+import { Plus, GraduationCap, Settings, Bell, BellOff, Sun, Moon, Search, Download, LogOut, User as UserIcon, Shield, School, AlertTriangle, Menu, X, Share, PlusSquare, Info, Copy, Check, Gift } from 'lucide-react';
 import { useAttendance } from '../context/AttendanceContext';
 import { useAuth } from '../context/AuthContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
@@ -51,6 +51,12 @@ const Dashboard = () => {
     const [selectedClassId, setSelectedClassId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    useEffect(() => {
+        if (user && user.hasSetReferral === false) {
+            navigate('/referral');
+        }
+    }, [user?.hasSetReferral, navigate]);
 
     const [newClass, setNewClass] = useState({
         name: '',
@@ -173,6 +179,14 @@ const Dashboard = () => {
                                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                             </button>
                             <button
+                                onClick={() => navigate('/referral')}
+                                className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-xl transition-all flex items-center gap-2 px-3"
+                                title="Refer & Earn"
+                            >
+                                <Gift className="w-5 h-5" />
+                                <span className="text-xs font-bold">Refer & Earn</span>
+                            </button>
+                            <button
                                 onClick={logout}
                                 className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
                                 title="Log Out"
@@ -272,6 +286,25 @@ const Dashboard = () => {
                                                 <div className="flex-1">
                                                     <p className="text-sm font-bold dark:text-white">About App</p>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">Guide & Info</p>
+                                                </div>
+                                            </button>
+
+                                            <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+
+                                            {/* Refer & Earn */}
+                                            <button
+                                                onClick={() => {
+                                                    navigate('/referral');
+                                                    setIsMenuOpen(false);
+                                                }}
+                                                className="flex items-center gap-3 w-full p-3 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors text-left"
+                                            >
+                                                <div className="p-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full">
+                                                    <Gift className="w-4 h-4" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-bold dark:text-white">Refer & Earn</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">Get 10 Points</p>
                                                 </div>
                                             </button>
 
@@ -498,6 +531,7 @@ const Dashboard = () => {
                     </button>
                 </div>
             </Modal>
+
         </div>
     );
 };
