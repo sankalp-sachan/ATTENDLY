@@ -21,7 +21,22 @@ export const AuthProvider = ({ children }) => {
     // Clean up local mock users since we are now connected to backend
     useEffect(() => {
         localStorage.removeItem('attendly_users');
+        if (user) {
+            refreshUser();
+        }
     }, []);
+
+    const refreshUser = async () => {
+        try {
+            const { data } = await api.get('/users/me');
+            setUser(prev => ({ ...prev, ...data }));
+        } catch (error) {
+            console.error("Refresh user error:", error);
+            if (error.response?.status === 401) {
+                logout();
+            }
+        }
+    };
 
     const fetchUsers = React.useCallback(async () => {
         try {
