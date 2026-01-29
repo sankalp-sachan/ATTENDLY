@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -94,65 +94,6 @@ const AdminDashboard = () => {
         } finally {
             setLoadingAttendance(false);
         }
-    };
-
-    const MaintenanceControl = () => {
-        const { maintenanceMode, maintenanceUntil, updateMaintenance } = useSystem();
-        const [isUpdating, setIsUpdating] = useState(false);
-        const [tempDate, setTempDate] = useState(maintenanceUntil ? new Date(maintenanceUntil).toISOString().slice(0, 16) : '');
-
-        const handleToggle = async () => {
-            setIsUpdating(true);
-            try {
-                const untilDate = tempDate ? new Date(tempDate).toISOString() : null;
-                await updateMaintenance(!maintenanceMode, untilDate);
-            } catch (err) {
-                alert(err);
-            } finally {
-                setIsUpdating(false);
-            }
-        };
-
-        return (
-            <div className="card lg:col-span-2 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 border-amber-500/20 bg-amber-500/5 relative overflow-hidden">
-                <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
-                    <div className={`p-3 rounded-2xl ${maintenanceMode ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
-                        <Shield className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h3 className="font-black dark:text-white text-lg leading-tight uppercase tracking-tight">Maintenance Mode</h3>
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
-                            {maintenanceMode ? 'Mode is ACTIVE' : 'Mode is INACTIVE'}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto relative z-10">
-                    <div className="flex flex-col gap-1 flex-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">OFF After</label>
-                        <input
-                            type="datetime-local"
-                            value={tempDate}
-                            onChange={(e) => setTempDate(e.target.value)}
-                            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none dark:text-white"
-                        />
-                    </div>
-                    <button
-                        onClick={handleToggle}
-                        disabled={isUpdating}
-                        className={`px-6 py-3 rounded-xl font-black text-sm transition-all shadow-lg uppercase tracking-widest ${maintenanceMode
-                                ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20'
-                                : 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'
-                            }`}
-                    >
-                        {isUpdating ? '...' : maintenanceMode ? 'Turn OFF' : 'Turn ON'}
-                    </button>
-                </div>
-
-                {/* Decoration */}
-                <div className="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-            </div>
-        );
     };
 
     return (
@@ -440,3 +381,69 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+const MaintenanceControl = () => {
+    const { maintenanceMode, maintenanceUntil, updateMaintenance } = useSystem();
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [tempDate, setTempDate] = useState(maintenanceUntil ? new Date(maintenanceUntil).toISOString().slice(0, 16) : '');
+
+    // Sync input when maintenanceUntil changes from server
+    useEffect(() => {
+        if (maintenanceUntil) {
+            setTempDate(new Date(maintenanceUntil).toISOString().slice(0, 16));
+        }
+    }, [maintenanceUntil]);
+
+    const handleToggle = async () => {
+        setIsUpdating(true);
+        try {
+            const untilDate = tempDate ? new Date(tempDate).toISOString() : null;
+            await updateMaintenance(!maintenanceMode, untilDate);
+        } catch (err) {
+            alert(err);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    return (
+        <div className="card lg:col-span-2 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 border-amber-500/20 bg-amber-500/5 relative overflow-hidden">
+            <div className="flex items-center gap-4 relative z-10 w-full sm:w-auto">
+                <div className={`p-3 rounded-2xl ${maintenanceMode ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
+                    <Shield className="w-6 h-6" />
+                </div>
+                <div>
+                    <h3 className="font-black dark:text-white text-lg leading-tight uppercase tracking-tight">Maintenance Mode</h3>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
+                        {maintenanceMode ? 'Mode is ACTIVE' : 'Mode is INACTIVE'}
+                    </p>
+                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto relative z-10">
+                <div className="flex flex-col gap-1 flex-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">OFF After</label>
+                    <input
+                        type="datetime-local"
+                        value={tempDate}
+                        onChange={(e) => setTempDate(e.target.value)}
+                        className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none dark:text-white"
+                    />
+                </div>
+                <button
+                    onClick={handleToggle}
+                    disabled={isUpdating}
+                    className={`px-6 py-3 rounded-xl font-black text-sm transition-all shadow-lg uppercase tracking-widest ${maintenanceMode
+                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20'
+                        : 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'
+                        }`}
+                >
+                    {isUpdating ? '...' : maintenanceMode ? 'Turn OFF' : 'Turn ON'}
+                </button>
+            </div>
+
+            {/* Decoration */}
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+        </div>
+    );
+};
