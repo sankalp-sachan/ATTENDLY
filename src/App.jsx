@@ -35,6 +35,21 @@ import AboutDeveloper from './pages/AboutDeveloper';
 import AboutApp from './pages/AboutApp';
 import Referral from './pages/Referral';
 
+import { SystemProvider, useSystem } from './context/SystemContext';
+import MaintenanceMode from './pages/MaintenanceMode';
+
+const MaintenanceGuard = ({ children }) => {
+  const { maintenanceMode, maintenanceUntil, isAdmin, loading } = useSystem();
+
+  if (loading) return null;
+
+  if (maintenanceMode && !isAdmin) {
+    return <MaintenanceMode maintenanceUntil={maintenanceUntil} />;
+  }
+
+  return children;
+};
+
 function App() {
   const [loading, setLoading] = React.useState(true);
 
@@ -47,70 +62,74 @@ function App() {
 
   return (
     <AuthProvider>
-      <AttendanceProvider>
-        <SpeedInsights />
-        <InstallOverlay />
-        <SessionWarning />
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <SplashScreen key="splash" />
-          ) : (
-            <motion.div
-              key="app"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="min-h-screen"
-            >
-              <Router>
-                <Routes>
-                  <Route
-                    path="/auth"
-                    element={
-                      <PublicRoute>
-                        <Auth />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/about-developer"
-                    element={<AboutDeveloper />}
-                  />
-                  <Route
-                    path="/about-app"
-                    element={<AboutApp />}
-                  />
-                  <Route
-                    path="/referral"
-                    element={
-                      <ProtectedRoute>
-                        <Referral />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin"
-                    element={
-                      <AdminRoute>
-                        <AdminDashboard />
-                      </AdminRoute>
-                    }
-                  />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </Router>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </AttendanceProvider>
+      <SystemProvider>
+        <AttendanceProvider>
+          <SpeedInsights />
+          <InstallOverlay />
+          <SessionWarning />
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <SplashScreen key="splash" />
+            ) : (
+              <motion.div
+                key="app"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="min-h-screen"
+              >
+                <MaintenanceGuard>
+                  <Router>
+                    <Routes>
+                      <Route
+                        path="/auth"
+                        element={
+                          <PublicRoute>
+                            <Auth />
+                          </PublicRoute>
+                        }
+                      />
+                      <Route
+                        path="/about-developer"
+                        element={<AboutDeveloper />}
+                      />
+                      <Route
+                        path="/about-app"
+                        element={<AboutApp />}
+                      />
+                      <Route
+                        path="/referral"
+                        element={
+                          <ProtectedRoute>
+                            <Referral />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/"
+                        element={
+                          <ProtectedRoute>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/admin"
+                        element={
+                          <AdminRoute>
+                            <AdminDashboard />
+                          </AdminRoute>
+                        }
+                      />
+                      <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                  </Router>
+                </MaintenanceGuard>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </AttendanceProvider>
+      </SystemProvider>
     </AuthProvider>
   );
 }

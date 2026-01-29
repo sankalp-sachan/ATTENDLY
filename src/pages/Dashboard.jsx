@@ -52,11 +52,13 @@ const Dashboard = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    /* 
     useEffect(() => {
         if (user && user.hasSetReferral === false) {
             navigate('/referral');
         }
     }, [user?.hasSetReferral, navigate]);
+    */
 
     const [newClass, setNewClass] = useState({
         name: '',
