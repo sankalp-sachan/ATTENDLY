@@ -8,14 +8,44 @@ import { useNavigate } from 'react-router-dom';
 const Referral = () => {
     const navigate = useNavigate();
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [timeOffset, setTimeOffset] = useState(0);
+    const [isTimeSynced, setIsTimeSynced] = useState(false);
+
+    // Sync time with world clock on mount
+    useEffect(() => {
+        const syncTime = async () => {
+            try {
+                // Fetch current UTC time from a reliable API
+                const response = await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC');
+                const data = await response.json();
+
+                if (data && data.datetime) {
+                    const serverTime = new Date(data.datetime).getTime();
+                    const localTime = new Date().getTime();
+                    // Offset = Server Time - Local Time
+                    // To get real time: Local Time + Offset
+                    setTimeOffset(serverTime - localTime);
+                    setIsTimeSynced(true);
+                    console.log("Time synchronized with WorldTimeAPI");
+                }
+            } catch (err) {
+                console.error("Failed to sync with WorldTimeAPI, falling back to local time:", err);
+                setIsTimeSynced(false);
+            }
+        };
+
+        syncTime();
+    }, []);
 
     useEffect(() => {
         const calculateTimeLeft = () => {
             try {
                 // Target: 4th February 2026, 10:00 AM IST (UTC+5:30)
                 const targetDate = new Date('2026-02-04T10:00:00+05:30');
-                const now = new Date();
-                const difference = targetDate.getTime() - now.getTime();
+
+                // Get current "Real" time: Local + Offset
+                const now = new Date().getTime() + timeOffset;
+                const difference = targetDate.getTime() - now;
 
                 if (difference > 0) {
                     setTimeLeft({
@@ -35,7 +65,7 @@ const Referral = () => {
         calculateTimeLeft();
         const timer = setInterval(calculateTimeLeft, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [timeOffset]); // Recalculate if offset changes
 
     const timerData = [
         { label: 'Days', value: timeLeft?.days ?? 0 },
@@ -98,9 +128,22 @@ const Referral = () => {
                             ))}
                         </div>
 
-                        <div className="mt-10 flex items-center gap-2.5 px-6 py-3 bg-red-50/50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20 shadow-sm">
-                            <Clock className="w-5 h-5 text-red-600 animate-spin-slow" />
-                            <span className="text-[11px] sm:text-[12px] font-black text-red-600 uppercase tracking-widest">SYSTEM MAINTENANCE</span>
+                        <div className="mt-10 flex flex-col items-center gap-3">
+                            <div className="flex items-center gap-2.5 px-6 py-3 bg-red-50/50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20 shadow-sm">
+                                <Clock className="w-5 h-5 text-red-600 animate-spin-slow" />
+                                <span className="text-[11px] sm:text-[12px] font-black text-red-600 uppercase tracking-widest">SYSTEM MAINTENANCE</span>
+                            </div>
+
+                            {isTimeSynced && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="flex items-center gap-1.5 opacity-50"
+                                >
+                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">World Clock Synced</span>
+                                </motion.div>
+                            )}
                         </div>
                     </div>
 
