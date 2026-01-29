@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-    ChevronLeft, Gift, Copy, Check, Share2, Info,
-    ArrowRight, Trophy, Users, Star, QrCode, AlertCircle, Clock
+    ChevronLeft, AlertCircle, Clock
 } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Referral = () => {
-    const { user, applyReferralCode } = useAuth();
     const navigate = useNavigate();
-    const [copied, setCopied] = useState(false);
-    const [referralCodeInput, setReferralCodeInput] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [showSuccess, setShowSuccess] = useState(false);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
         const calculateTimeLeft = () => {
-            const targetDate = new Date('2026-02-04T00:00:00');
+            // Target: 4th February 2026, 10:00 AM IST (UTC+5:30)
+            // 10:00 AM IST = 04:30 AM UTC
+            const targetDate = new Date('2026-02-04T04:30:00Z');
             const now = new Date();
             const difference = targetDate - now;
 
@@ -40,67 +33,6 @@ const Referral = () => {
         const timer = setInterval(calculateTimeLeft, 1000);
         return () => clearInterval(timer);
     }, []);
-
-    useEffect(() => {
-        const pendingRef = localStorage.getItem('attendly_pending_referral');
-        if (pendingRef) {
-            setReferralCodeInput(pendingRef);
-            localStorage.removeItem('attendly_pending_referral');
-        }
-    }, []);
-
-    const handleCopyCode = () => {
-        navigator.clipboard.writeText(user.referralCode);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    const handleApplyCode = async (e) => {
-        if (e) e.preventDefault();
-        if (!referralCodeInput.trim()) return;
-
-        setLoading(true);
-        setError('');
-        try {
-            await applyReferralCode(referralCodeInput);
-            setShowSuccess(true);
-            setTimeout(() => setShowSuccess(false), 3000);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSkip = async () => {
-        setLoading(true);
-        try {
-            await applyReferralCode('');
-            // Optional: redirect or just update UI
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const shareUrl = `${window.location.origin}/auth?ref=${user?.referralCode}`;
-
-    const handleShare = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Join Attendly!',
-                    text: `Manage your attendance like a pro. Use my referral code: ${user.referralCode}`,
-                    url: shareUrl,
-                });
-            } catch (err) {
-                console.error('Share failed:', err);
-            }
-        } else {
-            handleCopyCode();
-        }
-    };
 
     return (
         <div className="min-h-screen min-h-[100dvh] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
@@ -134,7 +66,7 @@ const Referral = () => {
                                 Referral Service <span className="text-red-600">Paused</span>
                             </h3>
                             <p className="text-base text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">
-                                We are currently experiencing technical difficulties. The referral program will be back on <span className="font-bold text-slate-900 dark:text-white underline decoration-red-500 underline-offset-4">4 February 2026</span>.
+                                We are currently experiencing technical difficulties. The referral program will be back on <span className="font-bold text-slate-900 dark:text-white underline decoration-red-500 underline-offset-4">4 February 2026, 10:00 AM IST</span>.
                             </p>
                         </div>
 
