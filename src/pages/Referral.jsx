@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     ChevronLeft, Gift, Copy, Check, Share2, Info,
-    ArrowRight, Trophy, Users, Star, QrCode
+    ArrowRight, Trophy, Users, Star, QrCode, AlertCircle, Clock
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +16,30 @@ const Referral = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+    useEffect(() => {
+        const calculateTimeLeft = () => {
+            const targetDate = new Date('2026-02-04T00:00:00');
+            const now = new Date();
+            const difference = targetDate - now;
+
+            if (difference > 0) {
+                setTimeLeft({
+                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                    minutes: Math.floor((difference / 1000 / 60) % 60),
+                    seconds: Math.floor((difference / 1000) % 60)
+                });
+            } else {
+                setTimeLeft(null);
+            }
+        };
+
+        calculateTimeLeft();
+        const timer = setInterval(calculateTimeLeft, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         const pendingRef = localStorage.getItem('attendly_pending_referral');
@@ -93,171 +117,57 @@ const Referral = () => {
                 </div>
             </header>
 
-            <main className="max-w-2xl mx-auto p-4 sm:p-6 pb-24">
-                {/* Points Hero Card */}
+            <main className="max-w-2xl mx-auto p-4 sm:p-6 flex flex-col items-center justify-center min-h-[80vh]">
+                {/* Service Down Alert */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary-500 p-8 rounded-[2rem] text-white shadow-2xl shadow-primary-500/30 mb-8"
+                    className="relative overflow-hidden bg-white dark:bg-slate-900 border-2 border-red-100 dark:border-red-900/30 p-8 rounded-[2.5rem] shadow-2xl shadow-red-500/10 group w-full"
                 >
-                    <div className="relative z-10 flex flex-col items-center">
-                        <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md mb-4">
-                            <Gift className="w-8 h-8" />
-                        </div>
-                        <p className="text-primary-100 font-bold uppercase tracking-widest text-xs mb-1">Total Rewards Earned</p>
-                        <h2 className="text-6xl font-black mb-2">{user?.referralPoints || 0}</h2>
-                        <div className="flex items-center gap-2 bg-black/10 px-4 py-1 rounded-full text-xs font-bold backdrop-blur-sm">
-                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                            <span>1 Referral = 10 Points</span>
-                        </div>
-                    </div>
-
-                    {/* Decorative Elements */}
-                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 bg-black/10 rounded-full blur-2xl" />
-                </motion.div>
-
-                {/* Main Content Grid */}
-                <div className="space-y-6">
-
-                    {/* Referral Code Section */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
-                    >
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-2 bg-primary-50 dark:bg-primary-900/30 text-primary-600 rounded-xl">
-                                <Users className="w-5 h-5" />
-                            </div>
-                            <h3 className="font-bold">Your Referral Assets</h3>
+                    <div className="relative z-10 flex flex-col items-center text-center">
+                        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl text-red-600 mb-6 animate-pulse">
+                            <AlertCircle className="w-10 h-10" />
                         </div>
 
-                        <div className="space-y-4">
-                            {/* Copy Code */}
-                            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-                                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">My Code</label>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 bg-white dark:bg-slate-900 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 font-black text-2xl tracking-[0.2em] text-center">
-                                        {user?.referralCode}
-                                    </div>
-                                    <button
-                                        onClick={handleCopyCode}
-                                        className={`p-4 rounded-xl transition-all ${copied ? 'bg-green-500 text-white' : 'bg-primary-600 text-white shadow-lg shadow-primary-500/20 active:scale-95'}`}
-                                    >
-                                        {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* QR Code */}
-                            <div className="flex flex-col items-center gap-4 p-8 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                <div className="bg-white p-4 rounded-3xl shadow-xl dark:shadow-none border dark:border-slate-700">
-                                    <QRCodeCanvas
-                                        value={shareUrl}
-                                        size={180}
-                                        level="H"
-                                        includeMargin={true}
-                                        className="rounded-xl"
-                                    />
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Share your QR Code</p>
-                                    <p className="text-xs text-slate-400 mt-1">Friends can scan this to join Attendly instantly</p>
-                                </div>
-                                <button
-                                    onClick={handleShare}
-                                    className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm"
-                                >
-                                    <Share2 className="w-4 h-4" />
-                                    Share Referral Link
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Enter Code Section (Only if not set) */}
-                    {user?.hasSetReferral === false && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="bg-primary-50 dark:bg-primary-900/10 p-6 rounded-3xl border border-primary-100 dark:border-primary-900/30 ring-4 ring-primary-500/5"
-                        >
-                            <div className="flex items-center gap-3 mb-4 text-primary-600">
-                                <Trophy className="w-6 h-6" />
-                                <h3 className="font-black">Were you referred?</h3>
-                            </div>
-                            <p className="text-sm text-primary-800 dark:text-primary-200 mb-6 font-medium">
-                                Enter your friend's code to give them <span className="font-black text-primary-600">10 reward points</span>!
+                        <div className="space-y-3 mb-8">
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                                Referral Service <span className="text-red-600">Paused</span>
+                            </h3>
+                            <p className="text-base text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">
+                                We are currently experiencing technical difficulties. The referral program will be back on <span className="font-bold text-slate-900 dark:text-white underline decoration-red-500 underline-offset-4">4 February 2026</span>.
                             </p>
+                        </div>
 
-                            <form onSubmit={handleApplyCode} className="space-y-4">
-                                <input
-                                    type="text"
-                                    placeholder="PASTE CODE HERE"
-                                    value={referralCodeInput}
-                                    onChange={(e) => setReferralCodeInput(e.target.value.toUpperCase())}
-                                    className="w-full px-4 py-4 text-center text-xl font-black tracking-widest bg-white dark:bg-slate-900 border-2 border-primary-100 dark:border-primary-800 rounded-2xl focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 outline-none transition-all uppercase"
-                                />
-
-                                {error && (
-                                    <p className="text-red-500 text-xs font-bold text-center">{error}</p>
-                                )}
-
-                                {showSuccess && (
-                                    <p className="text-green-500 text-xs font-bold text-center">Referral code applied successfully! 🎉</p>
-                                )}
-
-                                <div className="flex flex-col gap-2">
-                                    <button
-                                        type="submit"
-                                        disabled={loading || !referralCodeInput}
-                                        className="w-full bg-primary-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50"
-                                    >
-                                        {loading ? 'Processing...' : (
-                                            <>
-                                                <span>Apply Code</span>
-                                                <ArrowRight className="w-5 h-5" />
-                                            </>
-                                        )}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleSkip}
-                                        disabled={loading}
-                                        className="text-slate-400 font-bold text-xs py-2 hover:text-slate-600 transition-colors"
-                                    >
-                                        I don't have a code
-                                    </button>
+                        {/* Timer Grid */}
+                        <div className="grid grid-cols-4 gap-4 w-full max-w-sm">
+                            {[
+                                { label: 'Days', value: timeLeft?.days },
+                                { label: 'Hours', value: timeLeft?.hours },
+                                { label: 'Mins', value: timeLeft?.minutes },
+                                { label: 'Secs', value: timeLeft?.seconds }
+                            ].map(({ label, value }) => (
+                                <div key={label} className="flex flex-col items-center">
+                                    <div className="relative w-full aspect-square bg-slate-50 dark:bg-slate-800 rounded-[1.5rem] flex items-center justify-center border-2 border-slate-100 dark:border-slate-700 overflow-hidden group-hover:border-red-200 dark:group-hover:border-red-900/50 transition-all duration-300">
+                                        <span className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+                                            {value !== undefined ? String(value).padStart(2, '0') : '00'}
+                                        </span>
+                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 pointer-events-none" />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 mt-2 tracking-widest">{label}</span>
                                 </div>
-                            </form>
-                        </motion.div>
-                    )}
+                            ))}
+                        </div>
 
-                    {/* Info Section */}
-                    <div className="p-6">
-                        <div className="flex items-start gap-3 text-slate-400">
-                            <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                            <div className="space-y-4">
-                                <div>
-                                    <p className="text-sm font-bold text-slate-500 dark:text-slate-300">How it works</p>
-                                    <p className="text-xs leading-relaxed mt-1">
-                                        When someone signs up using your link or enters your code during onboarding, you receive 10 points.
-                                        These points indicate your contribution to the Attendly community!
-                                    </p>
-                                </div>
-                                <div className="pt-4 border-t dark:border-slate-800">
-                                    <p className="text-[10px] uppercase font-black tracking-wider text-slate-400">Strict Anti-Spam Policy</p>
-                                    <p className="text-[10px] leading-relaxed mt-1">
-                                        Abuse of the referral system using bots or multiple accounts will result in immediate account termination.
-                                    </p>
-                                </div>
-                            </div>
+                        <div className="mt-8 flex items-center gap-2 px-6 py-2.5 bg-red-50 dark:bg-red-900/10 rounded-full border border-red-100 dark:border-red-900/20">
+                            <Clock className="w-4 h-4 text-red-600" />
+                            <span className="text-[11px] font-black text-red-600 uppercase tracking-widest">System Maintenance In Progress</span>
                         </div>
                     </div>
-                </div>
+
+                    {/* Decorative background blur */}
+                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-48 h-48 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
+                </motion.div>
             </main>
         </div>
     );
