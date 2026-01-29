@@ -13,10 +13,9 @@ const Referral = () => {
         const calculateTimeLeft = () => {
             try {
                 // Target: 4th February 2026, 10:00 AM IST (UTC+5:30)
-                // Using a flat timestamp for broad mobile browser compatibility
-                const targetTime = 1738643400000; // 2026-02-04T04:30:00.000Z in ms
-                const now = new Date().getTime();
-                const difference = targetTime - now;
+                const targetDate = new Date('2026-02-04T10:00:00+05:30');
+                const now = new Date();
+                const difference = targetDate.getTime() - now.getTime();
 
                 if (difference > 0) {
                     setTimeLeft({
@@ -64,50 +63,63 @@ const Referral = () => {
             <main className="max-w-2xl mx-auto p-4 sm:p-6 flex flex-col items-center justify-center min-h-[calc(100vh-80px)]">
                 {/* Service Down Alert */}
                 <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden bg-white dark:bg-slate-900 border-2 border-red-100 dark:border-red-900/30 p-6 sm:p-8 rounded-[2rem] shadow-2xl shadow-red-500/10 group w-full max-w-lg mb-20"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative overflow-hidden bg-white dark:bg-slate-900 border-2 border-red-100 dark:border-red-900/30 p-6 sm:p-10 rounded-[2.5rem] shadow-2xl shadow-red-500/10 group w-full max-w-lg mb-10"
                 >
                     <div className="relative z-10 flex flex-col items-center text-center">
-                        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl text-red-600 mb-6 animate-pulse">
-                            <AlertCircle className="w-10 h-10" />
+                        <div className="bg-red-50 dark:bg-red-900/20 p-5 rounded-3xl text-red-600 mb-8 animate-pulse shadow-inner">
+                            <AlertCircle className="w-12 h-12" />
                         </div>
 
-                        <div className="space-y-3 mb-8">
-                            <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                                Referral Service <span className="text-red-600">Paused</span>
+                        <div className="space-y-4 mb-10">
+                            <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none">
+                                REFERRAL <span className="text-red-600">PAUSED</span>
                             </h3>
-                            <p className="text-base text-slate-500 dark:text-slate-400 font-medium px-2">
-                                We are currently experiencing technical difficulties. The referral program will be back on <span className="font-bold text-slate-900 dark:text-white underline decoration-red-500 underline-offset-4">4 February 2026, 10:00 AM IST</span>.
+                            <p className="text-base text-slate-500 dark:text-slate-400 font-medium px-2 leading-relaxed">
+                                We are currently experiencing technical difficulties. The referral program will be back on <span className="font-bold text-slate-900 dark:text-white underline decoration-red-500 decoration-2 underline-offset-4">4 February 2026, 10:00 AM IST</span>.
                             </p>
                         </div>
 
                         {/* Timer Grid */}
-                        <div className="grid grid-cols-4 gap-3 sm:gap-4 w-full px-2">
+                        <div className="grid grid-cols-4 gap-3 sm:gap-5 w-full px-2">
                             {timerData.map(({ label, value }) => (
                                 <div key={label} className="flex flex-col items-center">
-                                    <div className="relative w-full aspect-square bg-slate-50 dark:bg-slate-800 rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center border-2 border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                                        <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+                                    <div className="relative w-full aspect-square bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center border-2 border-slate-200/50 dark:border-slate-700/50 overflow-hidden shadow-xl ring-1 ring-black/5 dark:ring-white/5">
+                                        <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tabular-nums drop-shadow-md">
                                             {String(value).padStart(2, '0')}
                                         </span>
-                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 dark:to-white/5 pointer-events-none" />
+                                        {/* Glass shine effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none" />
+                                        <div className="absolute top-0 inset-x-0 h-px bg-white/20 dark:bg-white/5" />
                                     </div>
-                                    <span className="text-[9px] sm:text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 mt-2 tracking-widest">{label}</span>
+                                    <span className="text-[10px] sm:text-[11px] font-black uppercase text-slate-400 dark:text-slate-500 mt-3 tracking-widest">{label}</span>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="mt-8 flex items-center gap-2 px-5 py-2.5 bg-red-50 dark:bg-red-900/10 rounded-full border border-red-100 dark:border-red-900/20">
-                            <Clock className="w-4 h-4 text-red-600" />
-                            <span className="text-[10px] sm:text-[11px] font-black text-red-600 uppercase tracking-widest">System Maintenance</span>
+                        <div className="mt-10 flex items-center gap-2.5 px-6 py-3 bg-red-50/50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20 shadow-sm">
+                            <Clock className="w-5 h-5 text-red-600 animate-spin-slow" />
+                            <span className="text-[11px] sm:text-[12px] font-black text-red-600 uppercase tracking-widest">SYSTEM MAINTENANCE</span>
                         </div>
                     </div>
 
-                    {/* Decorative background blur */}
-                    <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-48 h-48 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
+                    {/* Decorative background blurs - enhanced */}
+                    <div className="absolute top-0 right-0 -mr-24 -mt-24 w-80 h-80 bg-red-500/10 rounded-full blur-[100px] pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-60 h-60 bg-red-600/15 rounded-full blur-[80px] pointer-events-none" />
                 </motion.div>
             </main>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes spin-slow {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                .animate-spin-slow {
+                    animation: spin-slow 8s linear infinite;
+                }
+            `}} />
         </div>
     );
 };
