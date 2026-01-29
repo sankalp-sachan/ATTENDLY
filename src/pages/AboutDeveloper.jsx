@@ -114,7 +114,7 @@ const AboutDeveloper = () => {
                             className="flex flex-wrap justify-center gap-4"
                         >
                             <SocialLink
-                                href="mailto:attendlyhelp@gmail.com"
+                                href="mailto:help@attendly.works"
                                 icon={MdOutgoingMail}
                                 label="Gmail"
                                 colorClass="text-green-500 hover:text-green-600 bg-green-500/10 hover:bg-green-500/20"
