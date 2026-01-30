@@ -17,7 +17,7 @@ const SessionWarning = () => {
             // Show if never shown or if 24 hours have passed since last shown
             if (!lastShown || now - parseInt(lastShown) > 24 * 60 * 60 * 1000) {
                 // Add a small delay so it doesn't pop up INSTANTLY on load
-                const timer = setTimeout(() => setIsVisible(true), 1500);
+                const timer = setTimeout(() => setIsVisible(true), 100);
                 return () => clearTimeout(timer);
             }
         }
