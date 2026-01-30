@@ -196,6 +196,15 @@ const AdminDashboard = () => {
                                                     Assistant
                                                 </span>
                                             )}
+                                            {u.acceptedTerms ? (
+                                                <span className="px-2 py-0.5 bg-green-500/10 text-green-500 text-[10px] font-black uppercase rounded-md border border-green-500/20">
+                                                    Terms Accepted
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 py-0.5 bg-red-500/10 text-red-500 text-[10px] font-black uppercase rounded-md border border-red-500/20">
+                                                    Terms Pending
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 truncate">
                                             <Mail className="w-3.5 h-3.5 flex-shrink-0" />

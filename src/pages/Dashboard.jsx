@@ -9,12 +9,29 @@ import ClassCard from '../components/ClassCard';
 import Modal from '../components/Modal';
 import AttendanceCalendar from '../components/AttendanceCalendar';
 import { calculateAttendanceStats } from '../utils/calculations';
+import TermsContent from '../components/TermsContent';
 
 const Dashboard = () => {
     const { isInstallable, showInstallPrompt, isIOS, isStandalone } = usePWAInstall();
     const [isIOSInstallModalOpen, setIsIOSInstallModalOpen] = useState(false);
-    const { user, logout } = useAuth();
+    const { user, logout, acceptTerms } = useAuth();
     const navigate = useNavigate();
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (user && user.acceptedTerms === false) {
+            setIsTermsModalOpen(true);
+        }
+    }, [user?.acceptedTerms]);
+
+    const handleAcceptTerms = async () => {
+        try {
+            await acceptTerms();
+            setIsTermsModalOpen(false);
+        } catch (error) {
+            alert(error.message);
+        }
+    };
     const {
         classes,
         addClass,
@@ -421,6 +438,15 @@ const Dashboard = () => {
                         </AnimatePresence>
                     </div>
                 )}
+
+                {/* Dashboard Disclaimer */}
+                <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 max-w-2xl mx-auto leading-relaxed italic">
+                        Disclaimer: This application is not authorized, endorsed, or affiliated with any college or educational authority.
+                        It is a personal utility designed for loyalty and individual attendance tracking.
+                        The developer is not responsible for any discrepancies.
+                    </p>
+                </div>
             </main>
 
             {/* Add Class Modal */}
@@ -531,6 +557,44 @@ const Dashboard = () => {
                     >
                         Got it!
                     </button>
+                </div>
+            </Modal>
+
+            {/* Terms and Conditions Modal */}
+            <Modal
+                isOpen={isTermsModalOpen}
+                onClose={() => { }} // Cannot close without accepting
+                title="Terms & Conditions"
+            >
+                <div className="space-y-6">
+                    <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-900/30">
+                        <div className="flex items-center gap-3 text-primary-600 dark:text-primary-400 mb-3">
+                            <Shield className="w-6 h-6" />
+                            <h3 className="font-bold">Important Notice</h3>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Please review and accept our terms to continue using Attendly.
+                        </p>
+                    </div>
+
+                    <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                        <TermsContent />
+                    </div>
+
+                    <div className="pt-4 flex flex-col gap-3">
+                        <button
+                            onClick={handleAcceptTerms}
+                            className="w-full btn-primary py-4 shadow-xl shadow-primary-500/20"
+                        >
+                            I Accept & Wish to Continue
+                        </button>
+                        <button
+                            onClick={logout}
+                            className="text-sm text-slate-500 hover:text-red-500 transition-colors py-2"
+                        >
+                            Reject & Logout
+                        </button>
+                    </div>
                 </div>
             </Modal>
 

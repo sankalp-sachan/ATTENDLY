@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Mail, Lock, User, ArrowRight, Loader2, School } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import Modal from '../components/Modal';
+import TermsContent from '../components/TermsContent';
 
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +19,8 @@ const Auth = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [isOnboarding, setIsOnboarding] = useState(false);
+    const [acceptedTermsLocal, setAcceptedTermsLocal] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     const { login, register, googleLogin, updateUserProfile } = useAuth();
     const navigate = useNavigate();
@@ -31,17 +35,21 @@ const Auth = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!acceptedTermsLocal) {
+            setError('Please accept the Terms and Conditions to continue.');
+            return;
+        }
         setError('');
         setLoading(true);
 
         try {
             if (isLogin) {
                 // Login Flow
-                await login(email, password);
+                await login(email, password, acceptedTermsLocal);
                 navigate('/');
             } else {
                 // Register Flow
-                await register(email, password, name, institute);
+                await register(email, password, name, institute, acceptedTermsLocal);
                 navigate('/');
             }
         } catch (err) {
@@ -54,7 +62,7 @@ const Auth = () => {
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
             setLoading(true);
-            const userData = await googleLogin(credentialResponse.credential);
+            const userData = await googleLogin(credentialResponse.credential, acceptedTermsLocal);
             if (userData.institute === 'Google User' || !userData.institute) {
                 setIsOnboarding(true);
                 setLoading(false);
@@ -235,10 +243,27 @@ const Auth = () => {
                                 </motion.div>
                             )}
 
+                            <div className="space-y-4 pt-2">
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+                                    <input
+                                        type="checkbox"
+                                        id="terms"
+                                        checked={acceptedTermsLocal}
+                                        onChange={(e) => setAcceptedTermsLocal(e.target.checked)}
+                                        className="mt-1 w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                                    />
+                                    <label htmlFor="terms" className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed cursor-pointer">
+                                        I accept the <button type="button" onClick={(e) => { e.preventDefault(); setIsTermsModalOpen(true); }} className="font-bold text-slate-700 dark:text-slate-200 hover:underline">Terms & Conditions</button>.
+                                        <br />
+                                        <span className="italic">Note: This app is not authorized by any college authority. It is designed solely for loyalty and tracking purposes.</span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full btn-primary py-4 mt-2 h-[56px]"
+                                className={`w-full btn-primary py-4 mt-2 h-[56px] ${!acceptedTermsLocal ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {loading ? (
                                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -296,6 +321,27 @@ const Auth = () => {
                     </Link>
                 </div>
             </motion.div>
+
+            <Modal
+                isOpen={isTermsModalOpen}
+                onClose={() => setIsTermsModalOpen(false)}
+                title="Terms & Conditions"
+            >
+                <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                    <TermsContent />
+                </div>
+                <div className="mt-6">
+                    <button
+                        onClick={() => {
+                            setAcceptedTermsLocal(true);
+                            setIsTermsModalOpen(false);
+                        }}
+                        className="w-full btn-primary py-4"
+                    >
+                        Accept & Close
+                    </button>
+                </div>
+            </Modal>
         </div>
     );
 };

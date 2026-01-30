@@ -64,9 +64,9 @@ export const AuthProvider = ({ children }) => {
         };
     }, [user, fetchUsers]);
 
-    const register = async (email, password, name, institute) => {
+    const register = async (email, password, name, institute, acceptedTerms) => {
         try {
-            const { data } = await api.post('/users', { email, password, name, institute });
+            const { data } = await api.post('/users', { email, password, name, institute, acceptedTerms });
 
             // If token is present, auto-login (legacy or if verification disabled)
             if (data.token) {
@@ -84,9 +84,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = async (email, password) => {
+    const login = async (email, password, acceptedTerms) => {
         try {
-            const { data } = await api.post('/users/login', { email, password });
+            const { data } = await api.post('/users/login', { email, password, acceptedTerms });
             setUser(data);
             return data;
         } catch (error) {
@@ -100,9 +100,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const googleLogin = async (credential) => {
+    const googleLogin = async (credential, acceptedTerms) => {
         try {
-            const { data } = await api.post('/users/google-auth', { token: credential });
+            const { data } = await api.post('/users/google-auth', { token: credential, acceptedTerms });
             setUser(data);
             return data;
         } catch (error) {
@@ -156,6 +156,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const acceptTerms = async () => {
+        try {
+            const { data } = await api.put('/users/accept-terms');
+            setUser(data);
+            return data;
+        } catch (error) {
+            console.error("Accept Terms error:", error);
+            throw new Error(error.response?.data?.message || 'Failed to accept terms');
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('attendly_current_user');
@@ -170,6 +181,7 @@ export const AuthProvider = ({ children }) => {
             googleLogin,
             updateUserProfile,
             applyReferralCode,
+            acceptTerms,
             logout,
             deleteUser,
             updateUserRole,
