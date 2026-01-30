@@ -326,11 +326,7 @@ const Auth = () => {
                 isOpen={isTermsModalOpen}
                 onClose={() => setIsTermsModalOpen(false)}
                 title="Terms & Conditions"
-            >
-                <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-                    <TermsContent />
-                </div>
-                <div className="mt-6">
+                footer={
                     <button
                         onClick={() => {
                             setAcceptedTermsLocal(true);
@@ -340,6 +336,10 @@ const Auth = () => {
                     >
                         Accept & Close
                     </button>
+                }
+            >
+                <div className="text-[12px] opacity-90">
+                    <TermsContent />
                 </div>
             </Modal>
         </div>

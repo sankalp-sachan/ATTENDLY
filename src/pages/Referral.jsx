@@ -4,12 +4,15 @@ import {
     ChevronLeft, AlertCircle, Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Modal';
+import TermsContent from '../components/TermsContent';
 
 const Referral = () => {
     const navigate = useNavigate();
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [timeOffset, setTimeOffset] = useState(0);
     const [isTimeSynced, setIsTimeSynced] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     // Sync time with world clock on mount
     useEffect(() => {
@@ -151,7 +154,35 @@ const Referral = () => {
                     <div className="absolute top-0 right-0 -mr-24 -mt-24 w-80 h-80 bg-red-500/10 rounded-full blur-[100px] pointer-events-none" />
                     <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-60 h-60 bg-red-600/15 rounded-full blur-[80px] pointer-events-none" />
                 </motion.div>
+
+                {/* Dashboard Disclaimer */}
+                <div className="mt-8 text-center">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 max-w-lg mx-auto leading-relaxed italic">
+                        Disclaimer: This application is not authorized, endorsed, or affiliated with any college or authority.
+                        It is for personal use only.
+                        {" "}<button onClick={() => setIsTermsModalOpen(true)} className="underline hover:text-primary-500 transition-colors">View Terms & Conditions</button>
+                    </p>
+                </div>
             </main>
+
+            {/* Terms Modal */}
+            <Modal
+                isOpen={isTermsModalOpen}
+                onClose={() => setIsTermsModalOpen(false)}
+                title="Terms & Conditions"
+                footer={
+                    <button
+                        onClick={() => setIsTermsModalOpen(false)}
+                        className="w-full btn-primary py-4"
+                    >
+                        Close
+                    </button>
+                }
+            >
+                <div className="text-[12px] opacity-90">
+                    <TermsContent />
+                </div>
+            </Modal>
 
             <style dangerouslySetInnerHTML={{
                 __html: `

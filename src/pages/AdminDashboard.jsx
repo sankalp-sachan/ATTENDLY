@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle, ShieldCheck, PlusSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAttendance } from '../context/AttendanceContext';
 import { useSystem } from '../context/SystemContext';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
+import TermsContent from '../components/TermsContent';
 import { calculateAttendanceStats, getStatusColor } from '../utils/calculations';
 
 const AdminDashboard = () => {
@@ -18,10 +19,11 @@ const AdminDashboard = () => {
     const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
     const [verifyPassword, setVerifyPassword] = useState('');
     const [pendingAction, setPendingAction] = useState(null);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [loadingAttendance, setLoadingAttendance] = useState(false);
     const navigate = useNavigate();
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (user?.role === 'admin' || user?.role === 'assistant-admin') {
             fetchUsers();
         }
@@ -264,6 +266,16 @@ const AdminDashboard = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Dashboard Disclaimer */}
+                <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 max-w-2xl mx-auto leading-relaxed italic">
+                        Disclaimer: This application is not authorized, endorsed, or affiliated with any college or educational authority.
+                        It is a personal utility designed for loyalty and individual attendance tracking.
+                        The developer is not responsible for any discrepancies.
+                        {" "}<button onClick={() => setIsTermsModalOpen(true)} className="underline hover:text-primary-500 transition-colors">View Terms & Conditions</button>
+                    </p>
+                </div>
             </main>
 
             {/* Attendance Modal */}
@@ -331,6 +343,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
             </Modal>
+
             {/* Password Verification Modal */}
             <Modal
                 isOpen={isVerifyModalOpen}
@@ -385,11 +398,28 @@ const AdminDashboard = () => {
                     </div>
                 </form>
             </Modal>
+
+            {/* Terms Modal */}
+            <Modal
+                isOpen={isTermsModalOpen}
+                onClose={() => setIsTermsModalOpen(false)}
+                title="Terms & Conditions"
+                footer={
+                    <button
+                        onClick={() => setIsTermsModalOpen(false)}
+                        className="w-full btn-primary py-4"
+                    >
+                        Close
+                    </button>
+                }
+            >
+                <div className="text-[12px] opacity-90">
+                    <TermsContent />
+                </div>
+            </Modal>
         </div>
     );
 };
-
-export default AdminDashboard;
 
 const MaintenanceControl = () => {
     const { maintenanceMode, maintenanceUntil, updateMaintenance } = useSystem();
@@ -456,3 +486,5 @@ const MaintenanceControl = () => {
         </div>
     );
 };
+
+export default AdminDashboard;

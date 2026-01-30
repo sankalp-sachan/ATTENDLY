@@ -445,6 +445,7 @@ const Dashboard = () => {
                         Disclaimer: This application is not authorized, endorsed, or affiliated with any college or educational authority.
                         It is a personal utility designed for loyalty and individual attendance tracking.
                         The developer is not responsible for any discrepancies.
+                        {" "}<button onClick={() => setIsTermsModalOpen(true)} className="underline hover:text-primary-500 transition-colors">View Terms & Conditions</button>
                     </p>
                 </div>
             </main>
@@ -563,37 +564,52 @@ const Dashboard = () => {
             {/* Terms and Conditions Modal */}
             <Modal
                 isOpen={isTermsModalOpen}
-                onClose={() => { }} // Cannot close without accepting
+                onClose={() => user?.acceptedTerms && setIsTermsModalOpen(false)}
                 title="Terms & Conditions"
+                showClose={user?.acceptedTerms}
+                footer={
+                    <div className="flex flex-col gap-3 w-full">
+                        {!user?.acceptedTerms ? (
+                            <>
+                                <button
+                                    onClick={handleAcceptTerms}
+                                    className="w-full btn-primary py-4 shadow-xl shadow-primary-500/20"
+                                >
+                                    I Accept & Wish to Continue
+                                </button>
+                                <button
+                                    onClick={logout}
+                                    className="text-sm text-slate-500 hover:text-red-500 transition-colors py-2 font-bold"
+                                >
+                                    Reject & Logout
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => setIsTermsModalOpen(false)}
+                                className="w-full btn-primary py-4 shadow-xl shadow-primary-500/20"
+                            >
+                                Close
+                            </button>
+                        )}
+                    </div>
+                }
             >
                 <div className="space-y-6">
-                    <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-900/30">
-                        <div className="flex items-center gap-3 text-primary-600 dark:text-primary-400 mb-3">
-                            <Shield className="w-6 h-6" />
-                            <h3 className="font-bold">Important Notice</h3>
+                    {!user?.acceptedTerms && (
+                        <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-900/30">
+                            <div className="flex items-center gap-3 text-primary-600 dark:text-primary-400 mb-2">
+                                <Shield className="w-6 h-6" />
+                                <h3 className="font-bold">Important Notice</h3>
+                            </div>
+                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Please review and accept our updated terms to continue using the Attendly Service.
+                            </p>
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                            Please review and accept our terms to continue using Attendly.
-                        </p>
-                    </div>
+                    )}
 
-                    <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="text-[12px] opacity-90">
                         <TermsContent />
-                    </div>
-
-                    <div className="pt-4 flex flex-col gap-3">
-                        <button
-                            onClick={handleAcceptTerms}
-                            className="w-full btn-primary py-4 shadow-xl shadow-primary-500/20"
-                        >
-                            I Accept & Wish to Continue
-                        </button>
-                        <button
-                            onClick={logout}
-                            className="text-sm text-slate-500 hover:text-red-500 transition-colors py-2"
-                        >
-                            Reject & Logout
-                        </button>
                     </div>
                 </div>
             </Modal>

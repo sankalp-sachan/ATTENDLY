@@ -1,9 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap, Heart, Github, Twitter, Linkedin } from 'lucide-react';
+import { GraduationCap, Heart, Github, Twitter, Linkedin, Shield } from 'lucide-react';
+import Modal from './Modal';
+import TermsContent from './TermsContent';
+import { useState } from 'react';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     return (
         <footer className="w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
@@ -42,9 +46,12 @@ const Footer = () => {
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className="text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                                    Documentation
-                                </a>
+                                <button
+                                    onClick={() => setIsTermsModalOpen(true)}
+                                    className="text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-left"
+                                >
+                                    Terms & Conditions
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -80,13 +87,39 @@ const Footer = () => {
                     <p className="text-sm text-slate-500 dark:text-slate-500">
                         © {currentYear} Attendly. All rights reserved.
                     </p>
-                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-500">
-                        <span>Made with</span>
-                        <Heart className="w-4 h-4 text-red-500 animate-pulse fill-red-500" />
-                        <span>by Sankalp</span>
+                    <div className="flex items-center gap-6">
+                        <button
+                            onClick={() => setIsTermsModalOpen(true)}
+                            className="text-sm text-slate-500 hover:text-primary-600 transition-colors"
+                        >
+                            Terms & Conditions
+                        </button>
+                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-500">
+                            <span>Made with</span>
+                            <Heart className="w-4 h-4 text-red-500 animate-pulse fill-red-500" />
+                            <span>by Sankalp</span>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <Modal
+                isOpen={isTermsModalOpen}
+                onClose={() => setIsTermsModalOpen(false)}
+                title="Terms & Conditions"
+                footer={
+                    <button
+                        onClick={() => setIsTermsModalOpen(false)}
+                        className="w-full btn-primary py-4"
+                    >
+                        Close
+                    </button>
+                }
+            >
+                <div className="text-[12px] opacity-90">
+                    <TermsContent />
+                </div>
+            </Modal>
         </footer>
     );
 };
