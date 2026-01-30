@@ -3,16 +3,49 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/pwa-192x192.png" />
-  <link rel="apple-touch-icon" href="/pwa-192x192.png">
+
+  <!-- ✅ Google Search Favicon (CRITICAL) -->
+  <link rel="icon" type="image/png" sizes="48x48" href="/pwa-192x192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png">
+
+  <!-- ✅ Apple / iOS -->
+  <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png">
+
+  <!-- ✅ PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
+
+  <!-- ✅ Mobile behavior -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0ea5e9" />
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description"
-    content="Attendly - Professional Self Attendance Tracking App for Students and Professionals" />
+
+  <!-- ✅ SEO -->
   <title>Attendly | Attendance Tracker</title>
+  <meta name="description"
+    content="Attendly is a professional self-attendance tracking app for students and professionals. Track attendance, calculate percentage, and stay organized." />
+
+  <!-- ✅ Open Graph (Brand Trust) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Attendly | Attendance Tracker">
+  <meta property="og:description"
+    content="Professional self-attendance tracking app for students and professionals.">
+  <meta property="og:image" content="https://attendly.works/pwa-512x512.png">
+  <meta property="og:url" content="https://attendly.works">
+  <meta property="og:site_name" content="Attendly">
+
+  <!-- ✅ Organization Schema (helps Google accept favicon) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Attendly",
+    "url": "https://attendly.works",
+    "logo": "https://attendly.works/pwa-512x512.png"
+  }
+  </script>
+
 </head>
 
 <body>
