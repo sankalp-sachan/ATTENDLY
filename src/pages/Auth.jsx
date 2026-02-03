@@ -25,13 +25,7 @@ const Auth = () => {
     const { login, register, googleLogin, updateUserProfile } = useAuth();
     const navigate = useNavigate();
 
-    React.useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const ref = params.get('ref');
-        if (ref) {
-            localStorage.setItem('attendly_pending_referral', ref);
-        }
-    }, []);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();

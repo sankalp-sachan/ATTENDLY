@@ -33,7 +33,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import AboutDeveloper from './pages/AboutDeveloper';
 import AboutApp from './pages/AboutApp';
-import Referral from './pages/Referral';
+
 
 import { SystemProvider, useSystem } from './context/SystemContext';
 import MaintenanceMode from './pages/MaintenanceMode';
@@ -97,14 +97,7 @@ function App() {
                         path="/about-app"
                         element={<AboutApp />}
                       />
-                      <Route
-                        path="/referral"
-                        element={
-                          <ProtectedRoute>
-                            <Referral />
-                          </ProtectedRoute>
-                        }
-                      />
+
                       <Route
                         path="/"
                         element={

@@ -144,17 +144,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const applyReferralCode = async (code) => {
-        try {
-            const { data } = await api.post('/users/referral', { code });
-            const updatedUser = { ...user, ...data.user, token: user.token }; // Keep the token
-            setUser(updatedUser);
-            return data;
-        } catch (error) {
-            console.error("Apply Referral error:", error);
-            throw new Error(error.response?.data?.message || 'Failed to apply referral code');
-        }
-    };
+
 
     const acceptTerms = async () => {
         try {
@@ -180,7 +170,7 @@ export const AuthProvider = ({ children }) => {
             register,
             googleLogin,
             updateUserProfile,
-            applyReferralCode,
+
             acceptTerms,
             logout,
             deleteUser,
