@@ -90,32 +90,32 @@ const Dashboard = () => {
     };
 
     const handleMarkAttendance = (date, status) => {
+        // Essential action - must be instant
         updateAttendance(selectedClassId, date, status);
 
-        // Check if notification is needed
-        const classData = classes.find(c => c.id === selectedClassId);
-        if (!classData) return;
+        // Defer secondary/heavy logic to the next tick to prevent UI blocking
+        setTimeout(() => {
+            const classData = classes.find(c => c.id === selectedClassId);
+            if (!classData) return;
 
-        // Note: The stats calculation here might use stale data since setClasses is async.
-        // In a real app we'd calculate based on the new attendance state.
-        // For simplicity, we'll re-calculate with the new status.
-        const updatedAttendance = { ...classData.attendance };
-        if (status === null) delete updatedAttendance[date];
-        else updatedAttendance[date] = status;
+            const updatedAttendance = { ...classData.attendance };
+            if (status === null) delete updatedAttendance[date];
+            else updatedAttendance[date] = status;
 
-        const stats = calculateAttendanceStats({ ...classData, attendance: updatedAttendance });
-        const todayStr = new Date().toISOString().split('T')[0];
-        const isBelowThreshold = stats.percentage < (classData.targetPercentage || 75);
-        const alreadyNotifiedToday = classData.lastNotificationDate === todayStr;
+            const stats = calculateAttendanceStats({ ...classData, attendance: updatedAttendance });
+            const todayStr = new Date().toISOString().split('T')[0];
+            const isBelowThreshold = stats.percentage < (classData.targetPercentage || 75);
+            const alreadyNotifiedToday = classData.lastNotificationDate === todayStr;
 
-        if (isBelowThreshold && status !== 'holiday' && !alreadyNotifiedToday) {
-            sendNotification(
-                '⚠️ Attendance Alert!',
-                `Your attendance in '${classData.name}' is ${stats.percentage}%. Maintain at least ${classData.targetPercentage || 75}%.`
-            );
+            if (isBelowThreshold && status !== 'holiday' && !alreadyNotifiedToday) {
+                sendNotification(
+                    '⚠️ Attendance Alert!',
+                    `Your attendance in '${classData.name}' is ${stats.percentage}%. Maintain at least ${classData.targetPercentage || 75}%.`
+                );
 
-            updateClass(selectedClassId, { lastNotificationDate: todayStr });
-        }
+                updateClass(selectedClassId, { lastNotificationDate: todayStr });
+            }
+        }, 0);
     };
 
     const filteredClasses = classes.filter(c =>

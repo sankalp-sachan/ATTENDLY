@@ -41,44 +41,57 @@ const AboutDeveloper = () => {
                             <motion.div
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className="relative w-64 h-64 mx-auto mb-6 flex items-center justify-center"
+                                className="relative w-64 h-64 mx-auto mb-10 flex items-center justify-center p-4"
                             >
-                                {/* Glowing background effect */}
+                                {/* Background directional motion blur effect */}
                                 <motion.div
                                     animate={{
-                                        scale: [1, 1.2, 1],
-                                        rotate: [0, 180, 360],
+                                        rotate: [0, 360],
                                     }}
                                     transition={{
-                                        duration: 10,
+                                        duration: 20,
                                         repeat: Infinity,
                                         ease: "linear"
                                     }}
-                                    className="absolute inset-0 bg-gradient-to-r from-primary-500/50 via-purple-500/50 to-pink-500/50 rounded-full blur-2xl"
+                                    className="absolute inset-0 bg-gradient-to-tr from-primary-500/40 via-purple-500/40 to-pink-500/40 rounded-full blur-[40px]"
+                                    style={{ transformOrigin: 'center center', willChange: 'transform' }}
                                 />
 
-                                {/* Shape shifting container */}
+                                {/* Morphing Background Layer (Liquid Shape) */}
                                 <motion.div
                                     animate={{
                                         borderRadius: [
                                             "60% 40% 30% 70%/60% 30% 70% 40%",
                                             "30% 60% 70% 40%/50% 60% 30% 60%",
                                             "60% 40% 30% 70%/60% 30% 70% 40%"
-                                        ]
+                                        ],
+                                        rotate: [0, 90, 0]
                                     }}
                                     transition={{
-                                        duration: 8,
+                                        duration: 12,
                                         repeat: Infinity,
                                         ease: "easeInOut"
                                     }}
-                                    className="relative w-full h-full overflow-hidden border-4 border-white/20 dark:border-white/10 shadow-2xl bg-slate-900"
-                                >
+                                    className="absolute inset-2 bg-gradient-to-br from-primary-600/20 to-indigo-600/20 backdrop-blur-3xl shadow-2xl border border-white/20"
+                                    style={{ willChange: 'border-radius, transform' }}
+                                />
+
+                                {/* Main Subject - Frozen, Sharp, No distortion */}
+                                <div className="relative w-full h-full rounded-full overflow-hidden border-[6px] border-white dark:border-slate-900 shadow-2xl z-10 bg-slate-200 dark:bg-slate-800">
                                     <img
                                         src="/developer.jpeg"
                                         alt="Sankalp Sachan"
-                                        className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                                        className="w-full h-full object-cover select-none pointer-events-none"
+                                        style={{
+                                            imageRendering: 'crisp-edges',
+                                            transform: 'translateZ(0)',
+                                            backfaceVisibility: 'hidden',
+                                            WebkitFontSmoothing: 'antialiased'
+                                        }}
                                     />
-                                </motion.div>
+                                    {/* Glass Overlay for depth without affecting underlying sharpness */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                </div>
                             </motion.div>
 
                             <motion.h1

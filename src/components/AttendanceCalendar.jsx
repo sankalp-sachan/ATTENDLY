@@ -147,21 +147,21 @@ const AttendanceCalendar = ({ classItem, onMark }) => {
                         </h4>
                         <div className="grid grid-cols-1 gap-3">
                             <button
-                                onClick={() => { onMark(selectedDate, 'present'); setSelectedDate(null); }}
+                                onClick={() => { setSelectedDate(null); onMark(selectedDate, 'present'); }}
                                 className="flex items-center justify-between p-4 rounded-xl border-2 border-green-100 dark:border-green-500/20 bg-green-50 dark:bg-green-500/10 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors"
                             >
                                 <span className="font-bold text-green-600 dark:text-green-400">Present</span>
                                 <Check className="w-5 h-5 text-green-600" />
                             </button>
                             <button
-                                onClick={() => { onMark(selectedDate, 'absent'); setSelectedDate(null); }}
+                                onClick={() => { setSelectedDate(null); onMark(selectedDate, 'absent'); }}
                                 className="flex items-center justify-between p-4 rounded-xl border-2 border-red-100 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
                             >
                                 <span className="font-bold text-red-600 dark:text-red-400">Absent</span>
                                 <CloseIcon className="w-5 h-5 text-red-600" />
                             </button>
                             <button
-                                onClick={() => { onMark(selectedDate, 'holiday'); setSelectedDate(null); }}
+                                onClick={() => { setSelectedDate(null); onMark(selectedDate, 'holiday'); }}
                                 className="flex items-center justify-between p-4 rounded-xl border-2 border-amber-100 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors"
                             >
                                 <span className="font-bold text-amber-600 dark:text-amber-400">Holiday</span>
