@@ -1,6 +1,28 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Cloud } from 'lucide-react';
+
+const WakingUpMessage = () => {
+    const [show, setShow] = React.useState(false);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => setShow(true), 3500); // Only show if it takes more than 3.5s
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (!show) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 text-primary-400 font-medium px-4 py-2 bg-primary-500/10 rounded-full mb-2"
+        >
+            <Cloud className="w-4 h-4 animate-pulse" />
+            <span className="text-xs uppercase tracking-widest">Waking up server...</span>
+        </motion.div>
+    );
+};
 
 const SplashScreen = () => {
     return (
@@ -27,7 +49,8 @@ const SplashScreen = () => {
             </motion.div>
 
             <div className="absolute bottom-10 flex flex-col items-center space-y-2">
-                <div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin mb-4"></div>
+                <WakingUpMessage />
+                <div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin mb-4 mt-2"></div>
                 <p className="text-sm font-medium text-slate-400">
                     Developed by
                 </p>

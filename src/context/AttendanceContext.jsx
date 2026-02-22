@@ -49,7 +49,7 @@ export const AttendanceProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             fetchClasses();
-            const interval = setInterval(fetchClasses, 100); // 1.5s poll
+            const interval = setInterval(fetchClasses, 30000); // Poll every 30s instead of 100ms
             return () => clearInterval(interval);
         } else {
             setClasses([]);
