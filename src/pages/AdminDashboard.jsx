@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle, ShieldCheck, PlusSquare, Send, BellRing } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -107,12 +108,10 @@ const AdminDashboard = () => {
         e.preventDefault();
         setSendingNotif(true);
         try {
-            await axios.post('https://attendly-backend-pe5k.onrender.com/api/notifications/send', {
+            await api.post('/notifications/send', {
                 title: notifTitle,
                 message: notifMessage,
                 recipients: 'all'
-            }, {
-                headers: { Authorization: `Bearer ${user.token}` }
             });
             alert('Notification sent successfully!');
             setIsNotificationModalOpen(false);

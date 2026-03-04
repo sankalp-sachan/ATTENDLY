@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Cookie, ArrowRight, ShieldCheck } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 
 const VAPID_PUBLIC_KEY = 'BOyz_Vzommn5IeuSBnKqz_XMLQKGI-G3fJxTTG7Un7WdyTjH6t4kPmAQwZ10jWYR_8XzQ4BTtWZ89alQiT714PQ';
 
@@ -49,6 +49,13 @@ const NotificationOverlay = () => {
 
         try {
             const registration = await navigator.serviceWorker.register('/sw.js');
+
+            // Fix: Check for existing subscription and unsubscribe if key mismatch
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                await existingSubscription.unsubscribe();
+            }
+
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
@@ -56,12 +63,14 @@ const NotificationOverlay = () => {
 
             const user = JSON.parse(localStorage.getItem('attendly_current_user'));
             if (user?.token) {
-                await axios.post('https://attendly-backend-pe5k.onrender.com/api/notifications/subscribe', { subscription }, {
-                    headers: { Authorization: `Bearer ${user.token}` }
-                });
+                await api.post('/notifications/subscribe', { subscription });
             }
         } catch (error) {
             console.error('Push Subscription Error:', error);
+            if (error.name === 'InvalidStateError') {
+                // If it still fails, it's likely a persistent key mismatch, 
+                // but the manual unsubscribe above usually fixes it.
+            }
         }
     };
 
