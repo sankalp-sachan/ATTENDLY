@@ -29,6 +29,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import SplashScreen from './components/SplashScreen';
 import InstallOverlay from './components/InstallOverlay';
 import CommunityOverlay from './components/CommunityOverlay';
+import NotificationOverlay from './components/NotificationOverlay';
 import SessionWarning from './components/SessionWarning';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -135,6 +136,7 @@ function App() {
           <SpeedInsights />
           <InstallOverlay />
           <CommunityOverlay />
+          <NotificationOverlay />
           <SessionWarning />
           <AppContent />
         </AttendanceProvider>

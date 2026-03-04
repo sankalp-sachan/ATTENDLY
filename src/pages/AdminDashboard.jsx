@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle, ShieldCheck, PlusSquare } from 'lucide-react';
+import { Shield, Users, Trash2, Mail, User as UserIcon, LogOut, ChevronLeft, Search, UserCog, BarChart2, Calendar, AlertCircle, ShieldCheck, PlusSquare, Send, BellRing } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAttendance } from '../context/AttendanceContext';
 import { useSystem } from '../context/SystemContext';
@@ -21,6 +22,10 @@ const AdminDashboard = () => {
     const [pendingAction, setPendingAction] = useState(null);
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [loadingAttendance, setLoadingAttendance] = useState(false);
+    const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+    const [notifTitle, setNotifTitle] = useState('');
+    const [notifMessage, setNotifMessage] = useState('');
+    const [sendingNotif, setSendingNotif] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -98,6 +103,28 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleSendNotification = async (e) => {
+        e.preventDefault();
+        setSendingNotif(true);
+        try {
+            await axios.post('https://attendly-backend-pe5k.onrender.com/api/notifications/send', {
+                title: notifTitle,
+                message: notifMessage,
+                recipients: 'all'
+            }, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            alert('Notification sent successfully!');
+            setIsNotificationModalOpen(false);
+            setNotifTitle('');
+            setNotifMessage('');
+        } catch (err) {
+            alert(err.response?.data?.message || err.message);
+        } finally {
+            setSendingNotif(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
             {/* Header */}
@@ -165,7 +192,14 @@ const AdminDashboard = () => {
                     </div>
 
                     {user?.role === 'admin' && (
-                        <MaintenanceControl />
+                        <>
+                            <MaintenanceControl />
+                            <div className="card text-center p-8 bg-indigo-500/5 border-indigo-500/20 cursor-pointer hover:bg-indigo-500/10 transition-all" onClick={() => setIsNotificationModalOpen(true)}>
+                                <BellRing className="w-8 h-8 text-indigo-500 mx-auto mb-3" />
+                                <p className="text-xl font-black dark:text-white uppercase tracking-tighter">Send Broadcast</p>
+                                <p className="text-sm font-bold text-slate-500 uppercase">Push Notifications</p>
+                            </div>
+                        </>
                     )}
                 </div>
 
@@ -394,6 +428,67 @@ const AdminDashboard = () => {
                             className="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-primary-500/20"
                         >
                             Confirm Action
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Notification Modal */}
+            <Modal
+                isOpen={isNotificationModalOpen}
+                onClose={() => setIsNotificationModalOpen(false)}
+                title="Send Push Notification"
+            >
+                <form onSubmit={handleSendNotification} className="space-y-6">
+                    <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
+                        <BellRing className="w-5 h-5 flex-shrink-0" />
+                        <p className="text-sm font-bold">
+                            This message will be sent to all users who have enabled push notifications.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                            Notification Title
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="e.g., System Update"
+                            value={notifTitle}
+                            onChange={(e) => setNotifTitle(e.target.value)}
+                            className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                            Message Body
+                        </label>
+                        <textarea
+                            required
+                            rows="3"
+                            placeholder="Enter your message here..."
+                            value={notifMessage}
+                            onChange={(e) => setNotifMessage(e.target.value)}
+                            className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white resize-none"
+                        />
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setIsNotificationModalOpen(false)}
+                            className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={sendingNotif}
+                            className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
+                        >
+                            {sendingNotif ? 'Sending...' : <><Send className="w-4 h-4" /> Send Now</>}
                         </button>
                     </div>
                 </form>
