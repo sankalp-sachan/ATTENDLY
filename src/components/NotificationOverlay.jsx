@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Cookie, ArrowRight, ShieldCheck } from 'lucide-react';
 import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 const VAPID_PUBLIC_KEY = 'BOyz_Vzommn5IeuSBnKqz_XMLQKGI-G3fJxTTG7Un7WdyTjH6t4kPmAQwZ10jWYR_8XzQ4BTtWZ89alQiT714PQ';
 
@@ -18,6 +19,7 @@ function urlBase64ToUint8Array(base64String) {
 
 const NotificationOverlay = () => {
     const [isVisible, setIsVisible] = useState(false);
+    const { user } = useAuth();
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -39,7 +41,7 @@ const NotificationOverlay = () => {
         };
 
         checkStatus();
-    }, []);
+    }, [user]);
 
     const registerAndSubscribe = async (shouldShowAlert = true) => {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -61,7 +63,6 @@ const NotificationOverlay = () => {
                 applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
             });
 
-            const user = JSON.parse(localStorage.getItem('attendly_current_user'));
             if (user?.token) {
                 await api.post('/notifications/subscribe', { subscription });
             }

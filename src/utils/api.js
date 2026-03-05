@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://attendly-backend-pe5k.onrender.com/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || (
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : 'https://attendly-backend-pe5k.onrender.com/api'
+    ),
 });
 
 // Add a request interceptor to attach the token

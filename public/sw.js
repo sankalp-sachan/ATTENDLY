@@ -1,9 +1,16 @@
 self.addEventListener('push', (event) => {
-    const data = event.data.json();
+    let data = {};
+    try {
+        data = event.data ? event.data.json() : { title: 'New Notification', body: 'No message content' };
+    } catch (e) {
+        console.error('Error parsing push data:', e);
+        data = { title: 'New Notification', body: 'Error parsing message' };
+    }
+
     const options = {
-        body: data.body,
-        icon: data.icon || '/logo192.png',
-        badge: data.badge || '/logo192.png',
+        body: data.body || '',
+        icon: data.icon || '/pwa-192x192.png',
+        badge: data.badge || '/pwa-192x192.png',
         vibrate: [100, 50, 100],
         data: {
             url: data.url || '/'
@@ -11,7 +18,7 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(
-        self.registration.showNotification(data.title, options)
+        self.registration.showNotification(data.title || 'Notification', options)
     );
 });
 
