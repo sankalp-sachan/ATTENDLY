@@ -53,8 +53,9 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('attendly_current_user', JSON.stringify(user));
             if (user.role === 'admin' || user.role === 'assistant-admin') {
                 fetchUsers();
-                interval = setInterval(fetchUsers, 4000); // 4s poll for admin/assistant-admin
+                interval = setInterval(fetchUsers, 10000); // 10s poll for admin/assistant-admin
             }
+
         } else {
             localStorage.removeItem('attendly_current_user');
             setUsers([]);
