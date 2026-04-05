@@ -15,15 +15,25 @@ export const useAttendance = () => {
 
 export const AttendanceProvider = ({ children }) => {
     const { user } = useAuth();
-    const [classes, setClasses] = useState([]);
+    const [classes, setClasses] = useState(() => {
+        // Load initial classes from cache for instant "no-lag" opening
+        const cached = localStorage.getItem('attendly_classes_cache');
+        return cached ? JSON.parse(cached) : [];
+    });
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
     useEffect(() => {
+        // Persistent cache of classes for fast launch
+        if (classes.length > 0) {
+            localStorage.setItem('attendly_classes_cache', JSON.stringify(classes));
+        }
+
         // Force notifications to be enabled in app state for all users
         setNotificationsEnabled(true);
         localStorage.setItem('notifications_enabled', 'true');
-    }, [user]);
+    }, [user, classes]);
+
 
     const fetchClasses = React.useCallback(async () => {
         if (!user) return;
@@ -45,16 +55,17 @@ export const AttendanceProvider = ({ children }) => {
         }
     }, [user]);
 
-    // Initial Fetch and Polling (Syncing Every 10 Seconds)
+    // Initial Fetch and Polling (Syncing Every 15 Seconds)
     useEffect(() => {
         if (user) {
             fetchClasses();
-            const interval = setInterval(fetchClasses, 4000); // Poll every 4s for real-time sync
+            const interval = setInterval(fetchClasses, 15000); // Poll every 15s to balance sync with server load
             return () => clearInterval(interval);
         } else {
             setClasses([]);
         }
     }, [user, fetchClasses]);
+
 
     const [darkMode, setDarkMode] = useState(() => {
         const saved = localStorage.getItem('dark_mode');
@@ -94,24 +105,51 @@ export const AttendanceProvider = ({ children }) => {
     }, [darkMode]);
 
     const addClass = async (newClass) => {
+        // Optimistic Update with temporary ID
+        const tempId = Date.now().toString();
+        const optimisticClass = {
+            ...newClass,
+            id: tempId,
+            attendance: {},
+            lastNotificationDate: '',
+            isOptimistic: true // Marker for UI if needed
+        };
+
+        setClasses(prev => [...prev, optimisticClass]);
+
         try {
             const { data } = await api.post('/attendance', newClass);
             const formatted = { ...data, id: data._id || data.id };
-            setClasses(prev => [...prev, formatted]);
+
+            // Replace the optimistic class with the real one from DB
+            setClasses(prev => prev.map(c => c.id === tempId ? formatted : c));
         } catch (error) {
             console.error("Error adding class:", error);
+            // Rollback on error
+            setClasses(prev => prev.filter(c => c.id !== tempId));
             alert("Failed to create class. Please try again.");
         }
     };
 
     const removeClass = async (id) => {
+        // Store the class in case we need to rollback
+        const classToRemove = classes.find(c => c.id === id);
+
+        // Optimistic Update
+        setClasses(prev => prev.filter(c => c.id !== id));
+
         try {
             await api.delete(`/attendance/${id}`);
-            setClasses(prev => prev.filter(c => c.id !== id));
         } catch (error) {
             console.error("Error removing class:", error);
+            // Rollback on error
+            if (classToRemove) {
+                setClasses(prev => [...prev, classToRemove]);
+            }
+            alert("Failed to delete class. Restoring...");
         }
     };
+
 
     const updateAttendance = async (classId, date, status) => {
         // Optimistic Update
