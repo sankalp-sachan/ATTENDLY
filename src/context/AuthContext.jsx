@@ -13,8 +13,14 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('attendly_current_user');
-        return savedUser ? JSON.parse(savedUser) : null;
+        try {
+            const savedUser = localStorage.getItem('attendly_current_user');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (e) {
+            console.error("Error parsing user from localStorage:", e);
+            localStorage.removeItem('attendly_current_user');
+            return null;
+        }
     });
     const [users, setUsers] = useState([]);
 

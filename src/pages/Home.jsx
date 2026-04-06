@@ -201,7 +201,7 @@ const Home = () => {
                         className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-slate-600 dark:text-slate-400 font-bold text-sm"
                     >
                         <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                        Join 1,240+ students managing their future
+                        Join 200+ students managing their Attendance
                     </motion.div>
 
                     <motion.h1
@@ -395,7 +395,7 @@ const Home = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-200 dark:border-slate-800 rounded-[3rem] overflow-hidden">
                         {[
                             { name: "Rahul S.", role: "B.Tech", text: "Finally an app that doesn't feel like a chore. The analytics are spot on." },
-                            { name: "Anjali K.", role: "BBA", text: "Essential for medical students with crazy ward schedules. UI is pure silk." },
+                            { name: "Anjali K.", role: "A", text: "Essential for medical students with crazy ward schedules. UI is pure silk." },
                             { name: "Sankalp P.", role: "BCA", text: "The PWA integration is 10/10. Feels native on my iPhone home screen." }
                         ].map((t, idx) => (
                             <div key={idx} className="p-12 bg-white dark:bg-slate-900 border-r last:border-r-0 border-slate-200 dark:border-slate-800 group hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">

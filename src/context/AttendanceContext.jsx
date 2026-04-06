@@ -16,9 +16,14 @@ export const useAttendance = () => {
 export const AttendanceProvider = ({ children }) => {
     const { user } = useAuth();
     const [classes, setClasses] = useState(() => {
-        // Load initial classes from cache for instant "no-lag" opening
-        const cached = localStorage.getItem('attendly_classes_cache');
-        return cached ? JSON.parse(cached) : [];
+        try {
+            const cached = localStorage.getItem('attendly_classes_cache');
+            return cached ? JSON.parse(cached) : [];
+        } catch (e) {
+            console.error("Error parsing classes cache:", e);
+            localStorage.removeItem('attendly_classes_cache');
+            return [];
+        }
     });
 
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -68,8 +73,12 @@ export const AttendanceProvider = ({ children }) => {
 
 
     const [darkMode, setDarkMode] = useState(() => {
-        const saved = localStorage.getItem('dark_mode');
-        return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        try {
+            const saved = localStorage.getItem('dark_mode');
+            return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } catch (e) {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
     });
 
     useEffect(() => {
