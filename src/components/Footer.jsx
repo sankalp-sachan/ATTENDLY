@@ -36,7 +36,7 @@ const Footer = () => {
                         </h3>
                         <ul className="space-y-2">
                             <li>
-                                <a href="/" className="text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                <a href="/dashboard" className="text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                                     Dashboard
                                 </a>
                             </li>

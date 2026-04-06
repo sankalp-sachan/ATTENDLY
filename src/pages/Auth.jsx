@@ -40,11 +40,11 @@ const Auth = () => {
             if (isLogin) {
                 // Login Flow
                 await login(email, password, acceptedTermsLocal);
-                navigate('/');
+                navigate('/dashboard');
             } else {
                 // Register Flow
                 await register(email, password, name, institute, acceptedTermsLocal);
-                navigate('/');
+                navigate('/dashboard');
             }
         } catch (err) {
             setError(err.message);
@@ -61,7 +61,7 @@ const Auth = () => {
                 setIsOnboarding(true);
                 setLoading(false);
             } else {
-                navigate('/');
+                navigate('/dashboard');
             }
         } catch (err) {
             setError(err.message || "Google Login Failed");
@@ -75,7 +75,7 @@ const Auth = () => {
         setLoading(true);
         try {
             await updateUserProfile({ institute });
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.message);
             setLoading(false);

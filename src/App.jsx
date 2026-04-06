@@ -5,6 +5,7 @@ import { AttendanceProvider } from './context/AttendanceContext';
 import Dashboard from './pages/Dashboard';
 import Auth from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
+import Home from './pages/Home';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -15,13 +16,13 @@ const ProtectedRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/auth" />;
-  if (user.role !== 'admin' && user.role !== 'assistant-admin') return <Navigate to="/" />;
+  if (user.role !== 'admin' && user.role !== 'assistant-admin') return <Navigate to="/dashboard" />;
   return children;
 };
 
 const PublicRoute = ({ children }) => {
   const { user } = useAuth();
-  if (user) return <Navigate to="/" />;
+  if (user) return <Navigate to="/dashboard" />;
   return children;
 };
 
@@ -104,6 +105,10 @@ const AppContent = () => {
 
                 <Route
                   path="/"
+                  element={<Home />}
+                />
+                <Route
+                  path="/dashboard"
                   element={
                     <ProtectedRoute>
                       <Dashboard />
