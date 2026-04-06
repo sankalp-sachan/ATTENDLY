@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { 
-    GraduationCap, 
-    ArrowRight, 
-    CheckCircle, 
-    Shield, 
-    Zap, 
-    Smartphone, 
-    Globe, 
+import {
+    GraduationCap,
+    ArrowRight,
+    CheckCircle,
+    Shield,
+    Zap,
+    Smartphone,
+    Globe,
     BookOpen,
     Users,
     Star,
@@ -16,12 +16,12 @@ import {
     X,
     Sun,
     Moon,
-    Bell,
     Layout,
     Clock,
     Target,
     BarChart3,
-    ArrowUpRight
+    ArrowUpRight,
+    Bell
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -60,7 +60,7 @@ const BentoCard = ({ icon: Icon, title, description, className, delay = 0 }) => 
 );
 
 const StepIndicator = ({ number, title, description, delay }) => (
-    <motion.div 
+    <motion.div
         initial={{ opacity: 0, x: -20 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
@@ -117,7 +117,7 @@ const Home = () => {
             {/* Premium Sticky Nav */}
             <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
                 <div className="glass-morphic px-6 py-4 rounded-[2rem] border border-white/40 dark:border-slate-800/40 flex items-center justify-between shadow-2xl backdrop-blur-2xl ring-1 ring-black/5">
-                    <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+                    <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                         <div className="bg-slate-900 dark:bg-white p-2.5 rounded-2xl text-white dark:text-slate-900 group-hover:rotate-[15deg] transition-transform duration-500">
                             <GraduationCap className="w-6 h-6" />
                         </div>
@@ -132,13 +132,13 @@ const Home = () => {
                         <a href="#how" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">How it works</a>
                         <a href="#faq" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
                         <div className="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <button 
-                            onClick={toggleDarkMode} 
+                        <button
+                            onClick={toggleDarkMode}
                             className="p-2.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-500"
                         >
                             {darkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
                         </button>
-                        <motion.button 
+                        <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => navigate('/auth')}
@@ -153,8 +153,8 @@ const Home = () => {
                         <button onClick={toggleDarkMode} className="p-3 text-slate-500 dark:text-slate-400">
                             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         </button>
-                        <button 
-                            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-900 dark:text-white"
                         >
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -172,7 +172,7 @@ const Home = () => {
                             className="lg:hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden p-4 shadow-2xl flex flex-col gap-2"
                         >
                             {['Features', 'How it works', 'FAQ'].map(item => (
-                                <a 
+                                <a
                                     key={item}
                                     href={`#${item.toLowerCase().split(' ')[0]}`}
                                     onClick={() => setIsMenuOpen(false)}
@@ -181,7 +181,7 @@ const Home = () => {
                                     {item}
                                 </a>
                             ))}
-                            <button 
+                            <button
                                 onClick={() => navigate('/auth')}
                                 className="mt-2 w-full bg-slate-950 dark:bg-white text-white dark:text-slate-950 p-5 rounded-2xl font-black text-center"
                             >
@@ -200,21 +200,21 @@ const Home = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-slate-600 dark:text-slate-400 font-bold text-sm"
                     >
-                         <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                         Join 1,240+ students managing their future
+                        <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                        Join 1,240+ students managing their future
                     </motion.div>
-                    
-                    <motion.h1 
+
+                    <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
                         className="text-6xl sm:text-8xl font-black text-slate-950 dark:text-white leading-[0.9] tracking-tighter"
                     >
-                        TRACK <span className="text-outline-primary dark:text-outline-white">LESS</span><br/>
+                        TRACK <span className="text-outline-primary dark:text-outline-white">LESS</span><br />
                         ACCOMPLISH <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">MORE</span>
                     </motion.h1>
 
-                    <motion.p 
+                    <motion.p
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
@@ -223,13 +223,13 @@ const Home = () => {
                         Ditch the notebooks. Master your academic life with the most intuitive attendance tracker ever built.
                     </motion.p>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3 }}
                         className="flex flex-col sm:flex-row items-center justify-center gap-6"
                     >
-                        <button 
+                        <button
                             onClick={() => navigate('/auth')}
                             className="group relative px-12 py-6 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-[2rem] font-black text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all duration-500"
                         >
@@ -249,14 +249,14 @@ const Home = () => {
                     <div className="relative group perspective-1000">
                         <div className="absolute -inset-4 bg-primary-500/10 rounded-[3rem] blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
                         <div className="relative bg-slate-200/50 dark:bg-slate-900/50 backdrop-blur-3xl rounded-[3rem] border-8 border-white/50 dark:border-slate-800/50 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] overflow-hidden">
-                            <img 
-                                src="/mockup.png" 
-                                alt="Dashboard Preview" 
+                            <img
+                                src="/mockup.png"
+                                alt="Dashboard Preview"
                                 className="w-full h-auto transform hover:scale-105 transition-transform duration-1000"
                                 onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2000" }}
                             />
                         </div>
-                        
+
                         {/* Floating Micro-data Cards */}
                         <motion.div
                             animate={{ y: [0, -15, 0], rotate: [2, 0, 2] }}
@@ -299,7 +299,7 @@ const Home = () => {
                     <div className="max-w-2xl">
                         <h2 className="text-primary-600 font-black tracking-widest uppercase text-sm mb-4">The Engine</h2>
                         <h3 className="text-5xl sm:text-7xl font-black text-slate-900 dark:text-white leading-[0.9]">
-                            BUILT FOR THE <br/> MODERN GENIUS.
+                            BUILT FOR THE <br /> MODERN GENIUS.
                         </h3>
                     </div>
 
@@ -347,33 +347,33 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto px-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                         <div className="space-y-12">
-                            <h2 className="text-6xl font-black tracking-tighter">THREE TAPS <br/> TO FREEDOM.</h2>
+                            <h2 className="text-6xl font-black tracking-tighter">THREE TAPS <br /> TO FREEDOM.</h2>
                             <div className="space-y-12">
-                                <StepIndicator 
-                                    number="01" 
-                                    title="Define the Grid" 
-                                    description="Input your subjects and target percentages. It takes 60 seconds." 
+                                <StepIndicator
+                                    number="01"
+                                    title="Define the Grid"
+                                    description="Input your subjects and target percentages. It takes 60 seconds."
                                 />
-                                <StepIndicator 
-                                    number="02" 
-                                    title="Taps only" 
-                                    description="Mark your status with a single tap after every class. Native-feel UI." 
+                                <StepIndicator
+                                    number="02"
+                                    title="Taps only"
+                                    description="Mark your status with a single tap after every class. Native-feel UI."
                                     delay={0.1}
                                 />
-                                <StepIndicator 
-                                    number="03" 
-                                    title="Execute Goals" 
-                                    description="Let Attendly calculate the margin. Know exactly when to study or skip." 
+                                <StepIndicator
+                                    number="03"
+                                    title="Execute Goals"
+                                    description="Let Attendly calculate the margin. Know exactly when to study or skip."
                                     delay={0.2}
                                 />
                             </div>
                         </div>
                         <div className="relative">
                             <div className="absolute -inset-20 bg-primary-500/20 rounded-full blur-[100px]"></div>
-                            <img 
-                                src="/students.png" 
-                                alt="Focus" 
-                                className="relative z-10 rounded-[4rem] shadow-2xl transform lg:rotate-3 hover:rotate-0 transition-transform duration-700" 
+                            <img
+                                src="/students.png"
+                                alt="Focus"
+                                className="relative z-10 rounded-[4rem] shadow-2xl transform lg:rotate-3 hover:rotate-0 transition-transform duration-700"
                                 onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1000" }}
                             />
                         </div>
@@ -385,18 +385,18 @@ const Home = () => {
             <section className="py-32 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-                        <h2 className="text-6xl font-black tracking-tighter leading-none dark:text-white">CO-SIGNED BY <br/> TOP STUDENTS.</h2>
+                        <h2 className="text-6xl font-black tracking-tighter leading-none dark:text-white">CO-SIGNED BY <br /> TOP STUDENTS.</h2>
                         <div className="text-right">
-                             <p className="text-primary-600 font-bold text-5xl">4.9/5</p>
-                             <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">AVERAGE RATING</p>
+                            <p className="text-primary-600 font-bold text-5xl">4.9/5</p>
+                            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">AVERAGE RATING</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-200 dark:border-slate-800 rounded-[3rem] overflow-hidden">
                         {[
-                            { name: "Rahul S.", role: "B.Tech @ IIT", text: "Finally an app that doesn't feel like a chore. The analytics are spot on." },
-                            { name: "Anjali K.", role: "MBBS Intern", text: "Essential for medical students with crazy ward schedules. UI is pure silk." },
-                            { name: "Sankalp P.", role: "CS Major", text: "The PWA integration is 10/10. Feels native on my iPhone home screen." }
+                            { name: "Rahul S.", role: "B.Tech", text: "Finally an app that doesn't feel like a chore. The analytics are spot on." },
+                            { name: "Anjali K.", role: "BBA", text: "Essential for medical students with crazy ward schedules. UI is pure silk." },
+                            { name: "Sankalp P.", role: "BCA", text: "The PWA integration is 10/10. Feels native on my iPhone home screen." }
                         ].map((t, idx) => (
                             <div key={idx} className="p-12 bg-white dark:bg-slate-900 border-r last:border-r-0 border-slate-200 dark:border-slate-800 group hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <div className="flex gap-1 text-yellow-500 mb-8">
@@ -437,19 +437,19 @@ const Home = () => {
 
             {/* Final CTA - Aggressive Modernism */}
             <section className="py-24 px-6 mb-20 text-center">
-                 <motion.div 
+                <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
                     viewport={{ once: true }}
                     className="max-w-5xl mx-auto space-y-12"
-                 >
+                >
                     <h2 className="text-6xl sm:text-9xl font-black tracking-[ -0.05em] dark:text-white leading-none">
-                        OWN YOUR <br/> <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">TIME.</span>
+                        OWN YOUR <br /> <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">TIME.</span>
                     </h2>
                     <p className="text-2xl text-slate-500 font-medium max-w-xl mx-auto">
                         Stop guessing your attendance. Start knowing your margin.
                     </p>
-                    <motion.button 
+                    <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => navigate('/auth')}
@@ -457,7 +457,7 @@ const Home = () => {
                     >
                         LAUNCH ATTENDLY NOW
                     </motion.button>
-                 </motion.div>
+                </motion.div>
             </section>
 
             <Footer />
