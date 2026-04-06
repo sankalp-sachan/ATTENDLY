@@ -160,7 +160,7 @@ const Home = () => {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
                                 </span>
-                                Trusted by 1000+ Students
+                                Trusted by 500+ Students
                             </div>
                             <h1 className="text-5xl sm:text-7xl font-black text-slate-900 dark:text-white leading-[1.1]">
                                 Master Your <span className="bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">Attendance</span> Track Your Success.
